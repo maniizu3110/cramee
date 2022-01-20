@@ -7,7 +7,6 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.6.3
-	github.com/lib/pq v1.10.4
 	github.com/o1egl/paseto v1.0.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
@@ -17,6 +16,7 @@ require (
 )
 
 require (
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
@@ -54,5 +54,6 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gorm.io/driver/mysql v1.2.3
 	gorm.io/gorm v1.22.5
 )

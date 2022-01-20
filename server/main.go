@@ -3,11 +3,9 @@ package main
 import (
 	"cramee/api"
 	"cramee/util"
-	"database/sql"
 	"log"
 	"os"
 
-	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,12 +24,8 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
-
-	conn, err := sql.Open(config.DBDriver, config.DBSource)
-	if err != nil {
-		log.Fatal("cannot connect to db:", err)
-	}
-	server,err := api.NewServer(conn,config)
+	db := util.InitDatabase(config)
+	server, err := api.NewServer(db, config)
 	if err != nil {
 		log.Fatal("cannot create new server:", err)
 	}

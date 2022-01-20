@@ -2,8 +2,7 @@ package models
 
 import "time"
 
-type Student struct {
-	Model
+type Teacher struct {
 	FirstName         string    `json:"first_name"`
 	FirstNameKana     string    `json:"first_name_kana"`
 	LastName          string    `json:"last_name"`
