@@ -47,8 +47,11 @@ func main() {
 
 	//全ての構造をautoMigrate
 	db.AutoMigrate(
-		&models.Model{},
-		&models.Test{},
+		&models.Student{},
+		&models.Lecture{},
+		&models.StudentLectureSchedule{},
+		&models.Teacher{},
+		&models.TeacherLectureSchedule{},
 	)
 
 }
