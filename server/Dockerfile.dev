@@ -1,0 +1,8 @@
+FROM golang:1.16-alpine3.13
+WORKDIR /app
+COPY . .
+RUN go get -u github.com/cosmtrek/air
+ENV CGO_ENABLED=0
+
+EXPOSE 8080
+CMD [ "go","run","main.go" ]
