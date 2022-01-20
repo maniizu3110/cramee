@@ -8,7 +8,7 @@ dropdb:
 	docker exec -it mysql dropdb 
 
 migrateup:
-	migrate -path migration -database "mysql://root:secret@tcp(localhost:3306)/cramee" -verbose up
+	migrate -path db/migration -database "mysql://root:secret@tcp(localhost:3306)/cramee" -verbose up
 
 migrateup1:
 	migrate -path db/migration -database "mysql://root:secret@tcp(localhost:3306)/cramee" -verbose up 1
@@ -25,6 +25,10 @@ test:
 run:
 	go run main.go
 
+create-sql: # 指定するデータベースの構造を削除->gormのautomigrateを走らせる->構図をsqlファイルとして取り出す
+	mysql
+
+
 mock:
 	mockgen -package mockdb -destination db/mock/store.go  cramee/api/repository Store
-.PHONY: dropdb migrateup migratedown migrateup1 migratedown1 test server mock run mock createmigrate
+.PHONY: dropdb migrateup migratedown migrateup1 migratedown1 test server mock run mock createmigrate create-sql
