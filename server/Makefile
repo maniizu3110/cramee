@@ -26,7 +26,8 @@ run:
 	go run main.go
 
 create-sql: # 指定するデータベースの構造を削除->gormのautomigrateを走らせる->構図をsqlファイルとして取り出す
-	mysql
+	go run db/tools/migrate.go
+	mysqldump --skip-column-statistics  --no-data -h 127.0.0.1 -u root -p cramee > ./dump.sql
 
 
 mock:

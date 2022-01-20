@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+type ModelMehod interface{
+	//TODO:全部
+	GetID() uint
+	SetID(id uint)
+	GetCreatedAt() 
+}
+
 type Model struct {
 	ID        uint `gorm:"primary_key"`
 	CreatedAt time.Time
