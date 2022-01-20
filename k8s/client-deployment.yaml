@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+  labels:
+    app: client-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client-pod
+  template:
+    metadata:
+      labels:
+        app: client-pod
+    spec:
+      containers:
+        - name: crame-client
+          image: 800317362310.dkr.ecr.ap-northeast-1.amazonaws.com/crame-client:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000

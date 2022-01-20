@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels:
+    app: api-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-pod
+  template:
+    metadata:
+      labels:
+        app: api-pod
+    spec:
+      containers:
+        - name: crame-api
+          image: 800317362310.dkr.ecr.ap-northeast-1.amazonaws.com/crame-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
