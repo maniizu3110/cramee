@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cramee/models"
 	"cramee/util"
 	"fmt"
 
@@ -9,7 +8,6 @@ import (
 )
 
 func main() {
-
 	///mysqlに接続する
 	config, err := util.LoadConfig(".")
 	if err != nil {
@@ -44,14 +42,5 @@ func main() {
 			panic(err)
 		}
 	}
-
-	//全ての構造をautoMigrate
-	db.AutoMigrate(
-		&models.Student{},
-		&models.Lecture{},
-		&models.StudentLectureSchedule{},
-		&models.Teacher{},
-		&models.TeacherLectureSchedule{},
-	)
 
 }
