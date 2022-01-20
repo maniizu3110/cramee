@@ -1,5 +1,5 @@
 mysql:
-	docker run --name mysql_for_cramee -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE="cramee" -d mysql
+	docker run --name mysql_for_cramee -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE="cramee" -d mysql
 
 createmigrate:
 	migrate create -ext sql -dir db/migration -seq init_schema
@@ -8,16 +8,16 @@ dropdb:
 	docker exec -it mysql dropdb 
 
 migrateup:
-	migrate -path db/migration -database "mysql://root:secret@localhost:3306/cramee?sslmode=disable" -verbose up
+	migrate -path migration -database "mysql://root:secret@tcp(localhost:3306)/cramee" -verbose up
 
 migrateup1:
-	migrate -path db/migration -database "mysql://root:secret@localhost:3306/cramee?sslmode=disable" -verbose up 1
+	migrate -path db/migration -database "mysql://root:secret@tcp(localhost:3306)/cramee" -verbose up 1
 
 migratedown:
-	migrate -path db/migration -database "mysql://root:secret@localhost:3306/cramee?sslmode=disable" -verbose down
+	migrate -path db/migration -database "mysql://root:secret@tcp(localhost:3306)/cramee" -verbose down
 
 migratedown1:
-	migrate -path db/migration -database "mysql://root:secret@localhost:3306/cramee?sslmode=disable" -verbose down 1
+	migrate -path db/migration -database "mysql://root:secret@tcp(localhost:3306)/cramee" -verbose down 1
 
 test:
 	go test -v -cover ./...
