@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=cramee
+    ports:
+      - "3306:3306"
+    container_name: mysql-container
+  nginx:
+    depends_on:
+      - api
+      - client
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "80:80"
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./api:/app
+    environment:
+    #TODO:mysqlのコンテナ名はmysqlのままだと接続に失敗することに注意
+      - DB_SOURCE=root:secret@tcp(mysql-container:3306)/cramee
+    depends_on:
+      - mysql
+    command: ["air"]
