@@ -1,0 +1,130 @@
+<template>
+  <div>
+    <v-card class="text-center pa-1">
+      <v-card-title class="justify-center display-1 mb-2">{{
+        $t("login.title")
+      }}</v-card-title>
+      <v-card-subtitle>{{ $t("login.detail") }}</v-card-subtitle>
+
+      <v-card-text>
+        <v-form ref="form" v-model="isFormValid" lazy-validation>
+          <v-text-field
+            v-model="email"
+            :rules="[rules.required]"
+            :validate-on-blur="false"
+            :error="errorEmail"
+            :error-messages="errorEmailMessage"
+            :label="$t('register.email')"
+            name="email"
+            outlined
+            @keyup.enter="submit"
+            @change="resetErrors"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="password"
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            :rules="[rules.required]"
+            :type="showPassword ? 'text' : 'password'"
+            :error="errorPassword"
+            :error-messages="errorPasswordMessage"
+            :label="$t('register.password')"
+            name="password"
+            outlined
+            @change="resetErrors"
+            @keyup.enter="submit"
+            @click:append="showPassword = !showPassword"
+          ></v-text-field>
+
+          <v-btn
+            :loading="isLoading"
+            :disabled="isSignUpDisabled"
+            block
+            x-large
+            color="primary"
+            @click="submit"
+            >{{ $t("login.button") }}</v-btn
+          >
+        </v-form>
+      </v-card-text>
+    </v-card>
+
+    <div class="text-center mt-6">
+      {{ $t("login.account") }}
+      <router-link
+        :to="localePath('/student/auth/signup')"
+        class="font-weight-bold"
+      >
+        {{ $t("login.signup") }}
+      </router-link>
+    </div>
+    <div class="text-center mt-6">
+      {{ $t("register.teacher") }}
+      <router-link
+        :to="localePath('/teacher/auth/signup')"
+        class="font-weight-bold"
+      >
+        {{ $t("register.to_teacher_signup") }}
+      </router-link>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapActions } from "vuex";
+export default {
+  layout: "auth",
+  name:"signin_student",
+  data() {
+    return {
+      // sign up buttons
+      isLoading: false,
+      isSignUpDisabled: false,
+
+      // form
+      isFormValid: true,
+      email: "",
+      password: "",
+
+      // form error
+      errorPhone: false,
+      errorEmail: false,
+      errorPassword: false,
+      errorPhoneMessage: "",
+      errorEmailMessage: "",
+      errorPasswordMessage: "",
+      // show password field
+      showPassword: false,
+      // input rules
+      rules: {
+        required: (value) => (value && Boolean(value)) || "Required",
+      },
+    };
+  },
+  methods: {
+    ...mapActions("auth", ["loginStudent"]),
+    async submit() {
+      if (this.$refs.form.validate()) {
+        this.isLoading = true;
+        this.isSignUpDisabled = true;
+        await this.loginStudent({
+          email: this.email,
+          password: this.password,
+        }).then((res) => {
+          this.isLoading = false;
+          this.isSignUpDisabled = false;
+          this.$router.push("/");
+        });
+      }
+    },
+    resetErrors() {
+      this.errorPhone = false;
+      this.errorEmail = false;
+      this.errorPassword = false;
+      this.errorPhoneMessage = "";
+      this.errorEmailMessage = "";
+      this.errorPasswordMessage = "";
+    },
+  },
+};
+</script>
