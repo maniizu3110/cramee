@@ -25,9 +25,13 @@ test:
 run:
 	go run main.go
 
+clear_db:
+	go run db/tools/clear_db/clear_db.go
+
 create-sql: # 指定するデータベースの構造を削除->gormのautomigrateを走らせる->構図をsqlファイルとして取り出す
-	go run db/tools/migrate.go
-	mysqldump --skip-column-statistics  --no-data -h 127.0.0.1 -u root -p cramee > ./dump.sql
+	go run db/tools/clear_db/clear_db.go
+	go run db/tools/migrate/migrate.go
+	mysqldump --no-data -h 127.0.0.1 -u root -p cramee > ./dump.sql
 
 
 mock:
