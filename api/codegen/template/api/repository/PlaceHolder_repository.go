@@ -14,6 +14,7 @@ import (
 func NewPlaceHolderRepository(db *gorm.DB) services.PlaceHolderRepository {
 	res := &placeHolderRepositoryImpl{}
 	res.db = db
+	res.now = time.Now
 	return res
 }
 

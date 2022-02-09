@@ -13,7 +13,6 @@ type StudentRepository interface {
 	HardDelete(id uint) (*models.Student, error)
 	Restore(id uint) (*models.Student, error)
 	GetByEmail(email string) (*models.Student, error) 
-
 }
 
 type StudentService interface {

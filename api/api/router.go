@@ -30,7 +30,7 @@ func (server *Server) SetRouter() *echo.Echo {
 			middleware.SetTokenMaker(server.tokenMaker),
 		)
 		handler.AssignSignStudentHandler(g.Group("/sign-student"))
-		//handler.AssignSignTeacherHandler(g.Group("/sign-teacher"))
+		handler.AssignSignTeacherHandler(g.Group("/sign-teacher"))
 	}
 	//{
 	//	// 認証必要

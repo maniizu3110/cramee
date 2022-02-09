@@ -14,6 +14,7 @@ import (
 func NewTeacherRepository(db *gorm.DB) services.TeacherRepository {
 	res := &teacherRepositoryImpl{}
 	res.db = db
+	res.now = time.Now
 	return res
 }
 
@@ -130,6 +131,7 @@ func (m *teacherRepositoryImpl) Create(data *models.Teacher) (*models.Teacher, e
 	now := m.now()
 	data.SetUpdatedAt(now)
 	data.SetCreatedAt(now)
+	data.SetPasswordChangedAt(now)
 	if err := m.db.Create(data).Error; err != nil {
 		return nil, err
 	}
@@ -213,6 +215,14 @@ func (m *teacherRepositoryImpl) Restore(id uint) (*models.Teacher, error) {
 	}
 	data, err = m.GetByID(id)
 	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (m *teacherRepositoryImpl) GetByEmail(email string) (*models.Teacher, error) {
+	data := &models.Teacher{}
+	if err := m.db.Where("email = ?", email).First(data).Error; err != nil {
 		return nil, err
 	}
 	return data, nil

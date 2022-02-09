@@ -17,3 +17,22 @@ type Teacher struct {
 	PasswordChangedAt       time.Time                `json:"password_changed_at"`
 	TeacherLectureSchedules []TeacherLectureSchedule `json:"teacher_lecture_schedules"`
 }
+
+type LimitedTeacherInfo struct {
+	ID          uint
+	PhoneNumber string
+	Email       string
+}
+
+//必要最低限の情報のみ抽出して返す
+func (s *Teacher) GetLimitedInfo() *LimitedTeacherInfo {
+	return &LimitedTeacherInfo{
+		ID:          s.ID,
+		PhoneNumber: s.PhoneNumber,
+		Email:       s.Email,
+	}
+}
+
+func (m *Teacher) SetPasswordChangedAt(t time.Time) {
+	m.PasswordChangedAt = t.UTC()
+}
