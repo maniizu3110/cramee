@@ -1,22 +1,3 @@
-CREATE TABLE `students` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
-  `first_name` longtext,
-  `first_name_kana` longtext,
-  `last_name` longtext,
-  `last_name_kana` longtext,
-  `phone_number` longtext,
-  `email` longtext,
-  `address` longtext,
-  `hashed_password` longtext,
-  `image` longtext,
-  `password_changed_at` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
 CREATE TABLE `teachers` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `created_at` datetime(3) DEFAULT NULL,
@@ -26,24 +7,37 @@ CREATE TABLE `teachers` (
   `first_name_kana` longtext,
   `last_name` longtext,
   `last_name_kana` longtext,
-  `phone_number` longtext,
-  `email` longtext,
+  `phone_number` varchar(191) DEFAULT NULL,
+  `email` varchar(191) DEFAULT NULL,
   `address` longtext,
-  `hashed_password` longtext,
+  `hashed_password` varchar(191) DEFAULT NULL,
   `image` longtext,
   `password_changed_at` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `phone_number` (`phone_number`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `hashed_password` (`hashed_password`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
-CREATE TABLE `lectures` (
+CREATE TABLE `students` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `deleted_at` datetime(3) DEFAULT NULL,
-  `teacher_lecture_schedule_id` bigint DEFAULT NULL,
-  `student_lecture_schedule_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `first_name` longtext,
+  `first_name_kana` longtext,
+  `last_name` longtext,
+  `last_name_kana` longtext,
+  `phone_number` varchar(191) DEFAULT NULL,
+  `email` varchar(191) DEFAULT NULL,
+  `address` longtext,
+  `hashed_password` varchar(191) DEFAULT NULL,
+  `image` longtext,
+  `password_changed_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `phone_number` (`phone_number`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `hashed_password` (`hashed_password`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `student_lecture_schedules` (
@@ -74,3 +68,14 @@ CREATE TABLE `teacher_lecture_schedules` (
   KEY `fk_teachers_teacher_lecture_schedules` (`teacher_id`),
   CONSTRAINT `fk_teachers_teacher_lecture_schedules` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `lectures` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `teacher_lecture_schedule_id` bigint DEFAULT NULL,
+  `student_lecture_schedule_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+

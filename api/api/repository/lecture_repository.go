@@ -11,28 +11,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type lectureRepositoryImpl struct {
-	db *gorm.DB
-	services.LectureRepository
-}
-
 func NewLectureRepository(db *gorm.DB) services.LectureRepository {
 	res := &lectureRepositoryImpl{}
-	res.LectureRepository = NewLectureRepository(db)
+	res.db = db
+	res.now = time.Now
 	return res
 }
 
-type LectureRepositoryImpl struct {
-	db        *gorm.DB
-	companyID uint
-	cache     map[uint]*models.Lecture
-	now       func() time.Time
+type lectureRepositoryImpl struct {
+	db  *gorm.DB
+	now func() time.Time
 }
 
-func (m *LectureRepositoryImpl) GetByID(id uint, expand ...string) (*models.Lecture, error) {
-	if cache, ok := m.cache[id]; ok && cache != nil && len(expand) == 0 {
-		return cache, nil
-	}
+func (m *lectureRepositoryImpl) GetByID(id uint, expand ...string) (*models.Lecture, error) {
 	data := &models.Lecture{}
 	db := m.db.Unscoped()
 	db, err := querybuilder.BuildExpandQuery(&models.Lecture{}, expand, db, func(db *gorm.DB) *gorm.DB {
@@ -49,7 +40,7 @@ func (m *LectureRepositoryImpl) GetByID(id uint, expand ...string) (*models.Lect
 
 type GetAllLectureBaseQueryBuildFunc func(db *gorm.DB) (*gorm.DB, error)
 
-func GetAllLectureBase(config services.GetAllConfig, db *gorm.DB, companyId uint, queryBuildFunc GetAllLectureBaseQueryBuildFunc) ([]*models.Lecture, uint, error) {
+func GetAllLectureBase(config services.GetAllConfig, db *gorm.DB, queryBuildFunc GetAllLectureBaseQueryBuildFunc) ([]*models.Lecture, uint, error) {
 	var limit int = util.GetAllMaxLimit
 	var offset int = 0
 	var allCount int64
@@ -79,7 +70,7 @@ func GetAllLectureBase(config services.GetAllConfig, db *gorm.DB, companyId uint
 		return nil, 0, err
 	}
 	q, err = querybuilder.BuildExpandQuery(&models.Lecture{}, config.Expand, q, func(db *gorm.DB) *gorm.DB {
-		return db.Where("company_id = ?", companyId).Unscoped()
+		return db.Unscoped()
 	})
 	if err != nil {
 		return nil, 0, err
@@ -131,19 +122,16 @@ func GetAllLectureBase(config services.GetAllConfig, db *gorm.DB, companyId uint
 	return model, uint(allCount), nil
 }
 
-func (m *LectureRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.Lecture, uint, error) {
-	return GetAllLectureBase(config, m.db, m.companyID, nil)
+func (m *lectureRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.Lecture, uint, error) {
+	return GetAllLectureBase(config, m.db, nil)
 }
 
-func (m *LectureRepositoryImpl) Create(data *models.Lecture) (*models.Lecture, error) {
+func (m *lectureRepositoryImpl) Create(data *models.Lecture) (*models.Lecture, error) {
 	data = util.ShallowCopy(data).(*models.Lecture)
 	now := m.now()
 	data.SetUpdatedAt(now)
 	data.SetCreatedAt(now)
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Create(data).Error; err != nil {
+	if err := m.db.Create(data).Error; err != nil {
 		return nil, err
 	}
 	data, err := m.GetByID(data.GetID())
@@ -153,7 +141,7 @@ func (m *LectureRepositoryImpl) Create(data *models.Lecture) (*models.Lecture, e
 	return data, nil
 }
 
-func (m *LectureRepositoryImpl) Update(id uint, data *models.Lecture) (*models.Lecture, error) {
+func (m *lectureRepositoryImpl) Update(id uint, data *models.Lecture) (*models.Lecture, error) {
 	orgData, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -176,11 +164,7 @@ func (m *LectureRepositoryImpl) Update(id uint, data *models.Lecture) (*models.L
 		}
 	}
 	data.SetUpdatedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Set("gorm:update_column", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -190,16 +174,13 @@ func (m *LectureRepositoryImpl) Update(id uint, data *models.Lecture) (*models.L
 	return data, nil
 }
 
-func (m *LectureRepositoryImpl) SoftDelete(id uint) (*models.Lecture, error) {
+func (m *lectureRepositoryImpl) SoftDelete(id uint) (*models.Lecture, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 	data.SetDeletedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -209,7 +190,7 @@ func (m *LectureRepositoryImpl) SoftDelete(id uint) (*models.Lecture, error) {
 	return data, nil
 }
 
-func (m *LectureRepositoryImpl) HardDelete(id uint) (*models.Lecture, error) {
+func (m *lectureRepositoryImpl) HardDelete(id uint) (*models.Lecture, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -223,7 +204,7 @@ func (m *LectureRepositoryImpl) HardDelete(id uint) (*models.Lecture, error) {
 	return data, nil
 }
 
-func (m *LectureRepositoryImpl) Restore(id uint) (*models.Lecture, error) {
+func (m *lectureRepositoryImpl) Restore(id uint) (*models.Lecture, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err

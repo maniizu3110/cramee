@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AssignStudentHandlers(g *echo.Group) {
+func AssignStudentHandler(g *echo.Group) {
 	g = g.Group("", func(handler echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			db := c.Get("Tx").(*gorm.DB)
@@ -22,17 +22,17 @@ func AssignStudentHandlers(g *echo.Group) {
 			return handler(c)
 		}
 	})
-	g.POST("", CreateStudentHandler)
-	g.PUT("/:id", UpdateStudentHandler)
-	g.DELETE("/:id", DeleteStudentHandler)
-	g.PUT("/:id/restore", RestoreStudentHandler)
-	g.GET("/:id", GetStudentByIDHandler)
-	g.GET("", GetStudentListHandler)
+	g.POST("", CreateStudent)
+	g.PUT("/:id", UpdateStudent)
+	g.DELETE("/:id", DeleteStudent)
+	g.PUT("/:id/restore", RestoreStudent)
+	g.GET("/:id", GetStudentByID)
+	g.GET("", GetStudentList)
 }
 
-type CreateStudentHandlerBaseCallbackFunc func(services.StudentService, *models.Student) (*models.Student, error)
+type CreateStudentBaseCallbackFunc func(services.StudentService, *models.Student) (*models.Student, error)
 
-func CreateStudentHandlerBase(c echo.Context, params interface{}, callback CreateStudentHandlerBaseCallbackFunc) (err error) {
+func CreateStudentBase(c echo.Context, params interface{}, callback CreateStudentBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentService)
 
 	data := &models.Student{}
@@ -57,15 +57,15 @@ func CreateStudentHandlerBase(c echo.Context, params interface{}, callback Creat
 	return c.JSON(http.StatusCreated, m)
 }
 
-func CreateStudentHandler(c echo.Context) (err error) {
-	return CreateStudentHandlerBase(c, nil, func(service services.StudentService, data *models.Student) (*models.Student, error) {
+func CreateStudent(c echo.Context) (err error) {
+	return CreateStudentBase(c, nil, func(service services.StudentService, data *models.Student) (*models.Student, error) {
 		return service.Create(data)
 	})
 }
 
-type UpdateStudentHandlerBaseCallbackFunc func(services.StudentService, uint, *models.Student) (*models.Student, error)
+type UpdateStudentBaseCallbackFunc func(services.StudentService, uint, *models.Student) (*models.Student, error)
 
-func UpdateStudentHandlerBase(c echo.Context, params interface{}, callback UpdateStudentHandlerBaseCallbackFunc) (err error) {
+func UpdateStudentBase(c echo.Context, params interface{}, callback UpdateStudentBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -94,15 +94,15 @@ func UpdateStudentHandlerBase(c echo.Context, params interface{}, callback Updat
 	return c.JSON(http.StatusOK, m)
 }
 
-func UpdateStudentHandler(c echo.Context) (err error) {
-	return UpdateStudentHandlerBase(c, nil, func(service services.StudentService, id uint, data *models.Student) (*models.Student, error) {
+func UpdateStudent(c echo.Context) (err error) {
+	return UpdateStudentBase(c, nil, func(service services.StudentService, id uint, data *models.Student) (*models.Student, error) {
 		return service.Update(uint(id), data)
 	})
 }
 
-type DeleteStudentHandlerBaseCallbackFunc func(services.StudentService, uint) (*models.Student, error)
+type DeleteStudentBaseCallbackFunc func(services.StudentService, uint) (*models.Student, error)
 
-func DeleteStudentHandlerBase(c echo.Context, params interface{}, callback DeleteStudentHandlerBaseCallbackFunc) (err error) {
+func DeleteStudentBase(c echo.Context, params interface{}, callback DeleteStudentBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -121,11 +121,11 @@ func DeleteStudentHandlerBase(c echo.Context, params interface{}, callback Delet
 	return c.JSON(http.StatusOK, data)
 }
 
-func DeleteStudentHandler(c echo.Context) (err error) {
+func DeleteStudent(c echo.Context) (err error) {
 	var param struct {
 		HardDelete bool
 	}
-	return DeleteStudentHandlerBase(c, &param, func(service services.StudentService, id uint) (*models.Student, error) {
+	return DeleteStudentBase(c, &param, func(service services.StudentService, id uint) (*models.Student, error) {
 		if param.HardDelete {
 			return service.HardDelete(id)
 		}
@@ -133,9 +133,9 @@ func DeleteStudentHandler(c echo.Context) (err error) {
 	})
 }
 
-type RestoreStudentHandlerBaseCallbackFunc func(services.StudentService, uint) (*models.Student, error)
+type RestoreStudentBaseCallbackFunc func(services.StudentService, uint) (*models.Student, error)
 
-func RestoreStudentHandlerBase(c echo.Context, params interface{}, callback RestoreStudentHandlerBaseCallbackFunc) (err error) {
+func RestoreStudentBase(c echo.Context, params interface{}, callback RestoreStudentBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -154,15 +154,15 @@ func RestoreStudentHandlerBase(c echo.Context, params interface{}, callback Rest
 	return c.JSON(http.StatusOK, m)
 }
 
-func RestoreStudentHandler(c echo.Context) (err error) {
-	return RestoreStudentHandlerBase(c, nil, func(service services.StudentService, id uint) (*models.Student, error) {
+func RestoreStudent(c echo.Context) (err error) {
+	return RestoreStudentBase(c, nil, func(service services.StudentService, id uint) (*models.Student, error) {
 		return service.Restore(id)
 	})
 }
 
-type GetStudentByIDHandlerBaseCallbackFunc func(services.StudentService, uint) (*models.Student, error)
+type GetStudentByIDBaseCallbackFunc func(services.StudentService, uint) (*models.Student, error)
 
-func GetStudentByIDHandlerBase(c echo.Context, params interface{}, callback GetStudentByIDHandlerBaseCallbackFunc) (err error) {
+func GetStudentByIDBase(c echo.Context, params interface{}, callback GetStudentByIDBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -181,11 +181,11 @@ func GetStudentByIDHandlerBase(c echo.Context, params interface{}, callback GetS
 	return c.JSON(http.StatusOK, m)
 }
 
-func GetStudentByIDHandler(c echo.Context) (err error) {
+func GetStudentByID(c echo.Context) (err error) {
 	var param struct {
 		Expand []string
 	}
-	return GetStudentByIDHandlerBase(c, &param, func(service services.StudentService, id uint) (*models.Student, error) {
+	return GetStudentByIDBase(c, &param, func(service services.StudentService, id uint) (*models.Student, error) {
 		return service.GetByID(id, param.Expand...)
 	})
 }
@@ -197,9 +197,9 @@ type GetStudentListResponse struct {
 	Data     []*models.Student
 }
 
-type GetStudentListHandlerBaseCallbackFunc func(services.StudentService) (*GetStudentListResponse, error)
+type GetStudentListBaseCallbackFunc func(services.StudentService) (*GetStudentListResponse, error)
 
-func GetStudentListHandlerBase(c echo.Context, params interface{}, callback GetStudentListHandlerBaseCallbackFunc) (err error) {
+func GetStudentListBase(c echo.Context, params interface{}, callback GetStudentListBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentService)
 	if params != nil {
 		if err = c.Bind(params); err != nil {
@@ -213,12 +213,12 @@ func GetStudentListHandlerBase(c echo.Context, params interface{}, callback GetS
 	return c.JSON(http.StatusOK, response)
 }
 
-func GetStudentListHandler(c echo.Context) (err error) {
+func GetStudentList(c echo.Context) (err error) {
 	var param struct {
 		services.GetAllConfig
 	}
 
-	return GetStudentListHandlerBase(c, &param, func(service services.StudentService) (*GetStudentListResponse, error) {
+	return GetStudentListBase(c, &param, func(service services.StudentService) (*GetStudentListResponse, error) {
 		m, count, err := service.GetAll(param.GetAllConfig)
 		if err != nil {
 			return nil, err

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"cramee/api/handler"
 	"cramee/api/middleware"
 	"cramee/myerror"
 	"cramee/util"
@@ -21,15 +22,16 @@ func (server *Server) SetRouter() *echo.Echo {
 	}
 	e.Validator = validator
 	middleware.CORS(e)
-	//{
-	//	// 認証不要
-	//	g := e.Group("/v1",
-	//		middleware.SetConfig(server.config),
-	//		middleware.SetTokenMaker(server.tokenMaker),
-	//	)
-	//	handler.AssignSignStudentHandler(g.Group("/sign-student"))
-	//	handler.AssignSignTeacherHandler(g.Group("/sign-teacher"))
-	//}
+	{
+		// 認証不要
+		g := e.Group("/v1",
+			middleware.SetDB(server.db),
+			middleware.SetConfig(server.config),
+			middleware.SetTokenMaker(server.tokenMaker),
+		)
+		handler.AssignSignStudentHandler(g.Group("/sign-student"))
+		handler.AssignSignTeacherHandler(g.Group("/sign-teacher"))
+	}
 	//{
 	//	// 認証必要
 	//	g := e.Group("/v1",
