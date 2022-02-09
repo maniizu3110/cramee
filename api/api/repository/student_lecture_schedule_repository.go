@@ -11,25 +11,21 @@ import (
 	"gorm.io/gorm"
 )
 
-type studentLectureScheduleRepositoryImpl struct {
-	db *gorm.DB
-	services.StudentLectureScheduleRepository
-}
 
 func NewStudentLectureScheduleRepository(db *gorm.DB) services.StudentLectureScheduleRepository {
 	res := &studentLectureScheduleRepositoryImpl{}
-	res.StudentLectureScheduleRepository = NewStudentLectureScheduleRepository(db)
+	res.db = db
 	return res
 }
 
-type StudentLectureScheduleRepositoryImpl struct {
+type studentLectureScheduleRepositoryImpl struct {
 	db        *gorm.DB
 	companyID uint
 	cache     map[uint]*models.StudentLectureSchedule
 	now       func() time.Time
 }
 
-func (m *StudentLectureScheduleRepositoryImpl) GetByID(id uint, expand ...string) (*models.StudentLectureSchedule, error) {
+func (m *studentLectureScheduleRepositoryImpl) GetByID(id uint, expand ...string) (*models.StudentLectureSchedule, error) {
 	if cache, ok := m.cache[id]; ok && cache != nil && len(expand) == 0 {
 		return cache, nil
 	}
@@ -131,11 +127,11 @@ func GetAllStudentLectureScheduleBase(config services.GetAllConfig, db *gorm.DB,
 	return model, uint(allCount), nil
 }
 
-func (m *StudentLectureScheduleRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.StudentLectureSchedule, uint, error) {
+func (m *studentLectureScheduleRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.StudentLectureSchedule, uint, error) {
 	return GetAllStudentLectureScheduleBase(config, m.db, m.companyID, nil)
 }
 
-func (m *StudentLectureScheduleRepositoryImpl) Create(data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
+func (m *studentLectureScheduleRepositoryImpl) Create(data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
 	data = util.ShallowCopy(data).(*models.StudentLectureSchedule)
 	now := m.now()
 	data.SetUpdatedAt(now)
@@ -153,7 +149,7 @@ func (m *StudentLectureScheduleRepositoryImpl) Create(data *models.StudentLectur
 	return data, nil
 }
 
-func (m *StudentLectureScheduleRepositoryImpl) Update(id uint, data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
+func (m *studentLectureScheduleRepositoryImpl) Update(id uint, data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
 	orgData, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -190,7 +186,7 @@ func (m *StudentLectureScheduleRepositoryImpl) Update(id uint, data *models.Stud
 	return data, nil
 }
 
-func (m *StudentLectureScheduleRepositoryImpl) SoftDelete(id uint) (*models.StudentLectureSchedule, error) {
+func (m *studentLectureScheduleRepositoryImpl) SoftDelete(id uint) (*models.StudentLectureSchedule, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -209,7 +205,7 @@ func (m *StudentLectureScheduleRepositoryImpl) SoftDelete(id uint) (*models.Stud
 	return data, nil
 }
 
-func (m *StudentLectureScheduleRepositoryImpl) HardDelete(id uint) (*models.StudentLectureSchedule, error) {
+func (m *studentLectureScheduleRepositoryImpl) HardDelete(id uint) (*models.StudentLectureSchedule, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -223,7 +219,7 @@ func (m *StudentLectureScheduleRepositoryImpl) HardDelete(id uint) (*models.Stud
 	return data, nil
 }
 
-func (m *StudentLectureScheduleRepositoryImpl) Restore(id uint) (*models.StudentLectureSchedule, error) {
+func (m *studentLectureScheduleRepositoryImpl) Restore(id uint) (*models.StudentLectureSchedule, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
