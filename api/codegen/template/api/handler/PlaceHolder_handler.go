@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AssignPlaceHolderHandlers(g *echo.Group) {
+func AssignPlaceHolderHandler(g *echo.Group) {
 	g = g.Group("", func(handler echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			db := c.Get("Tx").(*gorm.DB)
@@ -22,17 +22,17 @@ func AssignPlaceHolderHandlers(g *echo.Group) {
 			return handler(c)
 		}
 	})
-	g.POST("", CreatePlaceHolderHandler)
-	g.PUT("/:id", UpdatePlaceHolderHandler)
-	g.DELETE("/:id", DeletePlaceHolderHandler)
-	g.PUT("/:id/restore", RestorePlaceHolderHandler)
-	g.GET("/:id", GetPlaceHolderByIDHandler)
-	g.GET("", GetPlaceHolderListHandler)
+	g.POST("", CreatePlaceHolder)
+	g.PUT("/:id", UpdatePlaceHolder)
+	g.DELETE("/:id", DeletePlaceHolder)
+	g.PUT("/:id/restore", RestorePlaceHolder)
+	g.GET("/:id", GetPlaceHolderByID)
+	g.GET("", GetPlaceHolderList)
 }
 
-type CreatePlaceHolderHandlerBaseCallbackFunc func(services.PlaceHolderService, *models.PlaceHolder) (*models.PlaceHolder, error)
+type CreatePlaceHolderBaseCallbackFunc func(services.PlaceHolderService, *models.PlaceHolder) (*models.PlaceHolder, error)
 
-func CreatePlaceHolderHandlerBase(c echo.Context, params interface{}, callback CreatePlaceHolderHandlerBaseCallbackFunc) (err error) {
+func CreatePlaceHolderBase(c echo.Context, params interface{}, callback CreatePlaceHolderBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.PlaceHolderService)
 
 	data := &models.PlaceHolder{}
@@ -57,15 +57,15 @@ func CreatePlaceHolderHandlerBase(c echo.Context, params interface{}, callback C
 	return c.JSON(http.StatusCreated, m)
 }
 
-func CreatePlaceHolderHandler(c echo.Context) (err error) {
-	return CreatePlaceHolderHandlerBase(c, nil, func(service services.PlaceHolderService, data *models.PlaceHolder) (*models.PlaceHolder, error) {
+func CreatePlaceHolder(c echo.Context) (err error) {
+	return CreatePlaceHolderBase(c, nil, func(service services.PlaceHolderService, data *models.PlaceHolder) (*models.PlaceHolder, error) {
 		return service.Create(data)
 	})
 }
 
-type UpdatePlaceHolderHandlerBaseCallbackFunc func(services.PlaceHolderService, uint, *models.PlaceHolder) (*models.PlaceHolder, error)
+type UpdatePlaceHolderBaseCallbackFunc func(services.PlaceHolderService, uint, *models.PlaceHolder) (*models.PlaceHolder, error)
 
-func UpdatePlaceHolderHandlerBase(c echo.Context, params interface{}, callback UpdatePlaceHolderHandlerBaseCallbackFunc) (err error) {
+func UpdatePlaceHolderBase(c echo.Context, params interface{}, callback UpdatePlaceHolderBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.PlaceHolderService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -94,15 +94,15 @@ func UpdatePlaceHolderHandlerBase(c echo.Context, params interface{}, callback U
 	return c.JSON(http.StatusOK, m)
 }
 
-func UpdatePlaceHolderHandler(c echo.Context) (err error) {
-	return UpdatePlaceHolderHandlerBase(c, nil, func(service services.PlaceHolderService, id uint, data *models.PlaceHolder) (*models.PlaceHolder, error) {
+func UpdatePlaceHolder(c echo.Context) (err error) {
+	return UpdatePlaceHolderBase(c, nil, func(service services.PlaceHolderService, id uint, data *models.PlaceHolder) (*models.PlaceHolder, error) {
 		return service.Update(uint(id), data)
 	})
 }
 
-type DeletePlaceHolderHandlerBaseCallbackFunc func(services.PlaceHolderService, uint) (*models.PlaceHolder, error)
+type DeletePlaceHolderBaseCallbackFunc func(services.PlaceHolderService, uint) (*models.PlaceHolder, error)
 
-func DeletePlaceHolderHandlerBase(c echo.Context, params interface{}, callback DeletePlaceHolderHandlerBaseCallbackFunc) (err error) {
+func DeletePlaceHolderBase(c echo.Context, params interface{}, callback DeletePlaceHolderBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.PlaceHolderService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -121,11 +121,11 @@ func DeletePlaceHolderHandlerBase(c echo.Context, params interface{}, callback D
 	return c.JSON(http.StatusOK, data)
 }
 
-func DeletePlaceHolderHandler(c echo.Context) (err error) {
+func DeletePlaceHolder(c echo.Context) (err error) {
 	var param struct {
 		HardDelete bool
 	}
-	return DeletePlaceHolderHandlerBase(c, &param, func(service services.PlaceHolderService, id uint) (*models.PlaceHolder, error) {
+	return DeletePlaceHolderBase(c, &param, func(service services.PlaceHolderService, id uint) (*models.PlaceHolder, error) {
 		if param.HardDelete {
 			return service.HardDelete(id)
 		}
@@ -133,9 +133,9 @@ func DeletePlaceHolderHandler(c echo.Context) (err error) {
 	})
 }
 
-type RestorePlaceHolderHandlerBaseCallbackFunc func(services.PlaceHolderService, uint) (*models.PlaceHolder, error)
+type RestorePlaceHolderBaseCallbackFunc func(services.PlaceHolderService, uint) (*models.PlaceHolder, error)
 
-func RestorePlaceHolderHandlerBase(c echo.Context, params interface{}, callback RestorePlaceHolderHandlerBaseCallbackFunc) (err error) {
+func RestorePlaceHolderBase(c echo.Context, params interface{}, callback RestorePlaceHolderBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.PlaceHolderService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -154,15 +154,15 @@ func RestorePlaceHolderHandlerBase(c echo.Context, params interface{}, callback 
 	return c.JSON(http.StatusOK, m)
 }
 
-func RestorePlaceHolderHandler(c echo.Context) (err error) {
-	return RestorePlaceHolderHandlerBase(c, nil, func(service services.PlaceHolderService, id uint) (*models.PlaceHolder, error) {
+func RestorePlaceHolder(c echo.Context) (err error) {
+	return RestorePlaceHolderBase(c, nil, func(service services.PlaceHolderService, id uint) (*models.PlaceHolder, error) {
 		return service.Restore(id)
 	})
 }
 
-type GetPlaceHolderByIDHandlerBaseCallbackFunc func(services.PlaceHolderService, uint) (*models.PlaceHolder, error)
+type GetPlaceHolderByIDBaseCallbackFunc func(services.PlaceHolderService, uint) (*models.PlaceHolder, error)
 
-func GetPlaceHolderByIDHandlerBase(c echo.Context, params interface{}, callback GetPlaceHolderByIDHandlerBaseCallbackFunc) (err error) {
+func GetPlaceHolderByIDBase(c echo.Context, params interface{}, callback GetPlaceHolderByIDBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.PlaceHolderService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -181,11 +181,11 @@ func GetPlaceHolderByIDHandlerBase(c echo.Context, params interface{}, callback 
 	return c.JSON(http.StatusOK, m)
 }
 
-func GetPlaceHolderByIDHandler(c echo.Context) (err error) {
+func GetPlaceHolderByID(c echo.Context) (err error) {
 	var param struct {
 		Expand []string
 	}
-	return GetPlaceHolderByIDHandlerBase(c, &param, func(service services.PlaceHolderService, id uint) (*models.PlaceHolder, error) {
+	return GetPlaceHolderByIDBase(c, &param, func(service services.PlaceHolderService, id uint) (*models.PlaceHolder, error) {
 		return service.GetByID(id, param.Expand...)
 	})
 }
@@ -197,9 +197,9 @@ type GetPlaceHolderListResponse struct {
 	Data     []*models.PlaceHolder
 }
 
-type GetPlaceHolderListHandlerBaseCallbackFunc func(services.PlaceHolderService) (*GetPlaceHolderListResponse, error)
+type GetPlaceHolderListBaseCallbackFunc func(services.PlaceHolderService) (*GetPlaceHolderListResponse, error)
 
-func GetPlaceHolderListHandlerBase(c echo.Context, params interface{}, callback GetPlaceHolderListHandlerBaseCallbackFunc) (err error) {
+func GetPlaceHolderListBase(c echo.Context, params interface{}, callback GetPlaceHolderListBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.PlaceHolderService)
 	if params != nil {
 		if err = c.Bind(params); err != nil {
@@ -213,12 +213,12 @@ func GetPlaceHolderListHandlerBase(c echo.Context, params interface{}, callback 
 	return c.JSON(http.StatusOK, response)
 }
 
-func GetPlaceHolderListHandler(c echo.Context) (err error) {
+func GetPlaceHolderList(c echo.Context) (err error) {
 	var param struct {
 		services.GetAllConfig
 	}
 
-	return GetPlaceHolderListHandlerBase(c, &param, func(service services.PlaceHolderService) (*GetPlaceHolderListResponse, error) {
+	return GetPlaceHolderListBase(c, &param, func(service services.PlaceHolderService) (*GetPlaceHolderListResponse, error) {
 		m, count, err := service.GetAll(param.GetAllConfig)
 		if err != nil {
 			return nil, err

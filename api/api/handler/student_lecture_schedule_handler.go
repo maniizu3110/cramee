@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AssignStudentLectureScheduleHandlers(g *echo.Group) {
+func AssignStudentLectureScheduleHandler(g *echo.Group) {
 	g = g.Group("", func(handler echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			db := c.Get("Tx").(*gorm.DB)
@@ -22,17 +22,17 @@ func AssignStudentLectureScheduleHandlers(g *echo.Group) {
 			return handler(c)
 		}
 	})
-	g.POST("", CreateStudentLectureScheduleHandler)
-	g.PUT("/:id", UpdateStudentLectureScheduleHandler)
-	g.DELETE("/:id", DeleteStudentLectureScheduleHandler)
-	g.PUT("/:id/restore", RestoreStudentLectureScheduleHandler)
-	g.GET("/:id", GetStudentLectureScheduleByIDHandler)
-	g.GET("", GetStudentLectureScheduleListHandler)
+	g.POST("", CreateStudentLectureSchedule)
+	g.PUT("/:id", UpdateStudentLectureSchedule)
+	g.DELETE("/:id", DeleteStudentLectureSchedule)
+	g.PUT("/:id/restore", RestoreStudentLectureSchedule)
+	g.GET("/:id", GetStudentLectureScheduleByID)
+	g.GET("", GetStudentLectureScheduleList)
 }
 
-type CreateStudentLectureScheduleHandlerBaseCallbackFunc func(services.StudentLectureScheduleService, *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error)
+type CreateStudentLectureScheduleBaseCallbackFunc func(services.StudentLectureScheduleService, *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error)
 
-func CreateStudentLectureScheduleHandlerBase(c echo.Context, params interface{}, callback CreateStudentLectureScheduleHandlerBaseCallbackFunc) (err error) {
+func CreateStudentLectureScheduleBase(c echo.Context, params interface{}, callback CreateStudentLectureScheduleBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentLectureScheduleService)
 
 	data := &models.StudentLectureSchedule{}
@@ -57,15 +57,15 @@ func CreateStudentLectureScheduleHandlerBase(c echo.Context, params interface{},
 	return c.JSON(http.StatusCreated, m)
 }
 
-func CreateStudentLectureScheduleHandler(c echo.Context) (err error) {
-	return CreateStudentLectureScheduleHandlerBase(c, nil, func(service services.StudentLectureScheduleService, data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
+func CreateStudentLectureSchedule(c echo.Context) (err error) {
+	return CreateStudentLectureScheduleBase(c, nil, func(service services.StudentLectureScheduleService, data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
 		return service.Create(data)
 	})
 }
 
-type UpdateStudentLectureScheduleHandlerBaseCallbackFunc func(services.StudentLectureScheduleService, uint, *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error)
+type UpdateStudentLectureScheduleBaseCallbackFunc func(services.StudentLectureScheduleService, uint, *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error)
 
-func UpdateStudentLectureScheduleHandlerBase(c echo.Context, params interface{}, callback UpdateStudentLectureScheduleHandlerBaseCallbackFunc) (err error) {
+func UpdateStudentLectureScheduleBase(c echo.Context, params interface{}, callback UpdateStudentLectureScheduleBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentLectureScheduleService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -94,15 +94,15 @@ func UpdateStudentLectureScheduleHandlerBase(c echo.Context, params interface{},
 	return c.JSON(http.StatusOK, m)
 }
 
-func UpdateStudentLectureScheduleHandler(c echo.Context) (err error) {
-	return UpdateStudentLectureScheduleHandlerBase(c, nil, func(service services.StudentLectureScheduleService, id uint, data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
+func UpdateStudentLectureSchedule(c echo.Context) (err error) {
+	return UpdateStudentLectureScheduleBase(c, nil, func(service services.StudentLectureScheduleService, id uint, data *models.StudentLectureSchedule) (*models.StudentLectureSchedule, error) {
 		return service.Update(uint(id), data)
 	})
 }
 
-type DeleteStudentLectureScheduleHandlerBaseCallbackFunc func(services.StudentLectureScheduleService, uint) (*models.StudentLectureSchedule, error)
+type DeleteStudentLectureScheduleBaseCallbackFunc func(services.StudentLectureScheduleService, uint) (*models.StudentLectureSchedule, error)
 
-func DeleteStudentLectureScheduleHandlerBase(c echo.Context, params interface{}, callback DeleteStudentLectureScheduleHandlerBaseCallbackFunc) (err error) {
+func DeleteStudentLectureScheduleBase(c echo.Context, params interface{}, callback DeleteStudentLectureScheduleBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentLectureScheduleService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -121,11 +121,11 @@ func DeleteStudentLectureScheduleHandlerBase(c echo.Context, params interface{},
 	return c.JSON(http.StatusOK, data)
 }
 
-func DeleteStudentLectureScheduleHandler(c echo.Context) (err error) {
+func DeleteStudentLectureSchedule(c echo.Context) (err error) {
 	var param struct {
 		HardDelete bool
 	}
-	return DeleteStudentLectureScheduleHandlerBase(c, &param, func(service services.StudentLectureScheduleService, id uint) (*models.StudentLectureSchedule, error) {
+	return DeleteStudentLectureScheduleBase(c, &param, func(service services.StudentLectureScheduleService, id uint) (*models.StudentLectureSchedule, error) {
 		if param.HardDelete {
 			return service.HardDelete(id)
 		}
@@ -133,9 +133,9 @@ func DeleteStudentLectureScheduleHandler(c echo.Context) (err error) {
 	})
 }
 
-type RestoreStudentLectureScheduleHandlerBaseCallbackFunc func(services.StudentLectureScheduleService, uint) (*models.StudentLectureSchedule, error)
+type RestoreStudentLectureScheduleBaseCallbackFunc func(services.StudentLectureScheduleService, uint) (*models.StudentLectureSchedule, error)
 
-func RestoreStudentLectureScheduleHandlerBase(c echo.Context, params interface{}, callback RestoreStudentLectureScheduleHandlerBaseCallbackFunc) (err error) {
+func RestoreStudentLectureScheduleBase(c echo.Context, params interface{}, callback RestoreStudentLectureScheduleBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentLectureScheduleService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -154,15 +154,15 @@ func RestoreStudentLectureScheduleHandlerBase(c echo.Context, params interface{}
 	return c.JSON(http.StatusOK, m)
 }
 
-func RestoreStudentLectureScheduleHandler(c echo.Context) (err error) {
-	return RestoreStudentLectureScheduleHandlerBase(c, nil, func(service services.StudentLectureScheduleService, id uint) (*models.StudentLectureSchedule, error) {
+func RestoreStudentLectureSchedule(c echo.Context) (err error) {
+	return RestoreStudentLectureScheduleBase(c, nil, func(service services.StudentLectureScheduleService, id uint) (*models.StudentLectureSchedule, error) {
 		return service.Restore(id)
 	})
 }
 
-type GetStudentLectureScheduleByIDHandlerBaseCallbackFunc func(services.StudentLectureScheduleService, uint) (*models.StudentLectureSchedule, error)
+type GetStudentLectureScheduleByIDBaseCallbackFunc func(services.StudentLectureScheduleService, uint) (*models.StudentLectureSchedule, error)
 
-func GetStudentLectureScheduleByIDHandlerBase(c echo.Context, params interface{}, callback GetStudentLectureScheduleByIDHandlerBaseCallbackFunc) (err error) {
+func GetStudentLectureScheduleByIDBase(c echo.Context, params interface{}, callback GetStudentLectureScheduleByIDBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentLectureScheduleService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -181,11 +181,11 @@ func GetStudentLectureScheduleByIDHandlerBase(c echo.Context, params interface{}
 	return c.JSON(http.StatusOK, m)
 }
 
-func GetStudentLectureScheduleByIDHandler(c echo.Context) (err error) {
+func GetStudentLectureScheduleByID(c echo.Context) (err error) {
 	var param struct {
 		Expand []string
 	}
-	return GetStudentLectureScheduleByIDHandlerBase(c, &param, func(service services.StudentLectureScheduleService, id uint) (*models.StudentLectureSchedule, error) {
+	return GetStudentLectureScheduleByIDBase(c, &param, func(service services.StudentLectureScheduleService, id uint) (*models.StudentLectureSchedule, error) {
 		return service.GetByID(id, param.Expand...)
 	})
 }
@@ -197,9 +197,9 @@ type GetStudentLectureScheduleListResponse struct {
 	Data     []*models.StudentLectureSchedule
 }
 
-type GetStudentLectureScheduleListHandlerBaseCallbackFunc func(services.StudentLectureScheduleService) (*GetStudentLectureScheduleListResponse, error)
+type GetStudentLectureScheduleListBaseCallbackFunc func(services.StudentLectureScheduleService) (*GetStudentLectureScheduleListResponse, error)
 
-func GetStudentLectureScheduleListHandlerBase(c echo.Context, params interface{}, callback GetStudentLectureScheduleListHandlerBaseCallbackFunc) (err error) {
+func GetStudentLectureScheduleListBase(c echo.Context, params interface{}, callback GetStudentLectureScheduleListBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.StudentLectureScheduleService)
 	if params != nil {
 		if err = c.Bind(params); err != nil {
@@ -213,12 +213,12 @@ func GetStudentLectureScheduleListHandlerBase(c echo.Context, params interface{}
 	return c.JSON(http.StatusOK, response)
 }
 
-func GetStudentLectureScheduleListHandler(c echo.Context) (err error) {
+func GetStudentLectureScheduleList(c echo.Context) (err error) {
 	var param struct {
 		services.GetAllConfig
 	}
 
-	return GetStudentLectureScheduleListHandlerBase(c, &param, func(service services.StudentLectureScheduleService) (*GetStudentLectureScheduleListResponse, error) {
+	return GetStudentLectureScheduleListBase(c, &param, func(service services.StudentLectureScheduleService) (*GetStudentLectureScheduleListResponse, error) {
 		m, count, err := service.GetAll(param.GetAllConfig)
 		if err != nil {
 			return nil, err
