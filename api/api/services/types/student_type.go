@@ -1,8 +1,8 @@
 package types
 
+import "cramee/models"
 
-type CreateStudent struct{
-
+type CreateStudent struct {
 }
 
 type LoginStudentRequest struct {
@@ -11,12 +11,6 @@ type LoginStudentRequest struct {
 }
 
 type LoginStudentResponse struct {
-	AccessToken string          `json:"access_token"`
-	Client      StudentResponse `json:"student"`
-}
-
-type StudentResponse struct {
-	ID          int64  `json:"id"`
-	PhoneNumber string `json:"phone_number"`
-	Email       string `json:"email"`
+	AccessToken string                    `json:"access_token"`
+	Student     *models.LimitedStudentInfo `json:"student"`
 }

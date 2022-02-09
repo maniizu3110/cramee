@@ -8,7 +8,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -140,7 +139,6 @@ func (m *studentRepositoryImpl) Create(data *models.Student) (*models.Student, e
 	if err != nil {
 		return nil, err
 	}
-	logrus.Info("最終処理")
 	return data, nil
 }
 
@@ -217,6 +215,14 @@ func (m *studentRepositoryImpl) Restore(id uint) (*models.Student, error) {
 	}
 	data, err = m.GetByID(id)
 	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (m *studentRepositoryImpl) GetByEmail(email string) (*models.Student, error) {
+	data := &models.Student{}
+	if err := m.db.Where("email = ?", email).First(data).Error; err != nil {
 		return nil, err
 	}
 	return data, nil
