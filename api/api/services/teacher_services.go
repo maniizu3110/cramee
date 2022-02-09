@@ -12,6 +12,7 @@ type TeacherRepository interface {
 	SoftDelete(id uint) (*models.Teacher, error)
 	HardDelete(id uint) (*models.Teacher, error)
 	Restore(id uint) (*models.Teacher, error)
+	GetByEmail(email string) (*models.Teacher, error)
 }
 
 type TeacherService interface {

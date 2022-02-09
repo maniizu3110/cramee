@@ -14,6 +14,7 @@ import (
 func NewLectureRepository(db *gorm.DB) services.LectureRepository {
 	res := &lectureRepositoryImpl{}
 	res.db = db
+	res.now = time.Now
 	return res
 }
 
