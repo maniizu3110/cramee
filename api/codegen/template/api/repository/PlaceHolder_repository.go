@@ -11,28 +11,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type placeHolderRepositoryImpl struct {
-	db *gorm.DB
-	services.PlaceHolderRepository
-}
-
 func NewPlaceHolderRepository(db *gorm.DB) services.PlaceHolderRepository {
 	res := &placeHolderRepositoryImpl{}
-	res.PlaceHolderRepository = NewPlaceHolderRepository(db)
+	res.db = db
+	res.now = time.Now
 	return res
 }
 
-type PlaceHolderRepositoryImpl struct {
-	db        *gorm.DB
-	companyID uint
-	cache     map[uint]*models.PlaceHolder
-	now       func() time.Time
+type placeHolderRepositoryImpl struct {
+	db    *gorm.DB
+	now   func() time.Time
 }
 
-func (m *PlaceHolderRepositoryImpl) GetByID(id uint, expand ...string) (*models.PlaceHolder, error) {
-	if cache, ok := m.cache[id]; ok && cache != nil && len(expand) == 0 {
-		return cache, nil
-	}
+func (m *placeHolderRepositoryImpl) GetByID(id uint, expand ...string) (*models.PlaceHolder, error) {
 	data := &models.PlaceHolder{}
 	db := m.db.Unscoped()
 	db, err := querybuilder.BuildExpandQuery(&models.PlaceHolder{}, expand, db, func(db *gorm.DB) *gorm.DB {
@@ -49,7 +40,7 @@ func (m *PlaceHolderRepositoryImpl) GetByID(id uint, expand ...string) (*models.
 
 type GetAllPlaceHolderBaseQueryBuildFunc func(db *gorm.DB) (*gorm.DB, error)
 
-func GetAllPlaceHolderBase(config services.GetAllConfig, db *gorm.DB, companyId uint, queryBuildFunc GetAllPlaceHolderBaseQueryBuildFunc) ([]*models.PlaceHolder, uint, error) {
+func GetAllPlaceHolderBase(config services.GetAllConfig, db *gorm.DB, queryBuildFunc GetAllPlaceHolderBaseQueryBuildFunc) ([]*models.PlaceHolder, uint, error) {
 	var limit int = util.GetAllMaxLimit
 	var offset int = 0
 	var allCount int64
@@ -79,7 +70,7 @@ func GetAllPlaceHolderBase(config services.GetAllConfig, db *gorm.DB, companyId 
 		return nil, 0, err
 	}
 	q, err = querybuilder.BuildExpandQuery(&models.PlaceHolder{}, config.Expand, q, func(db *gorm.DB) *gorm.DB {
-		return db.Where("company_id = ?", companyId).Unscoped()
+		return db.Unscoped()
 	})
 	if err != nil {
 		return nil, 0, err
@@ -131,19 +122,16 @@ func GetAllPlaceHolderBase(config services.GetAllConfig, db *gorm.DB, companyId 
 	return model, uint(allCount), nil
 }
 
-func (m *PlaceHolderRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.PlaceHolder, uint, error) {
-	return GetAllPlaceHolderBase(config, m.db, m.companyID, nil)
+func (m *placeHolderRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.PlaceHolder, uint, error) {
+	return GetAllPlaceHolderBase(config, m.db, nil)
 }
 
-func (m *PlaceHolderRepositoryImpl) Create(data *models.PlaceHolder) (*models.PlaceHolder, error) {
+func (m *placeHolderRepositoryImpl) Create(data *models.PlaceHolder) (*models.PlaceHolder, error) {
 	data = util.ShallowCopy(data).(*models.PlaceHolder)
 	now := m.now()
 	data.SetUpdatedAt(now)
 	data.SetCreatedAt(now)
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Create(data).Error; err != nil {
+	if err := m.db.Create(data).Error; err != nil {
 		return nil, err
 	}
 	data, err := m.GetByID(data.GetID())
@@ -153,7 +141,7 @@ func (m *PlaceHolderRepositoryImpl) Create(data *models.PlaceHolder) (*models.Pl
 	return data, nil
 }
 
-func (m *PlaceHolderRepositoryImpl) Update(id uint, data *models.PlaceHolder) (*models.PlaceHolder, error) {
+func (m *placeHolderRepositoryImpl) Update(id uint, data *models.PlaceHolder) (*models.PlaceHolder, error) {
 	orgData, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -176,11 +164,7 @@ func (m *PlaceHolderRepositoryImpl) Update(id uint, data *models.PlaceHolder) (*
 		}
 	}
 	data.SetUpdatedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Set("gorm:update_column", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -190,16 +174,13 @@ func (m *PlaceHolderRepositoryImpl) Update(id uint, data *models.PlaceHolder) (*
 	return data, nil
 }
 
-func (m *PlaceHolderRepositoryImpl) SoftDelete(id uint) (*models.PlaceHolder, error) {
+func (m *placeHolderRepositoryImpl) SoftDelete(id uint) (*models.PlaceHolder, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 	data.SetDeletedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -209,7 +190,7 @@ func (m *PlaceHolderRepositoryImpl) SoftDelete(id uint) (*models.PlaceHolder, er
 	return data, nil
 }
 
-func (m *PlaceHolderRepositoryImpl) HardDelete(id uint) (*models.PlaceHolder, error) {
+func (m *placeHolderRepositoryImpl) HardDelete(id uint) (*models.PlaceHolder, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -223,7 +204,7 @@ func (m *PlaceHolderRepositoryImpl) HardDelete(id uint) (*models.PlaceHolder, er
 	return data, nil
 }
 
-func (m *PlaceHolderRepositoryImpl) Restore(id uint) (*models.PlaceHolder, error) {
+func (m *placeHolderRepositoryImpl) Restore(id uint) (*models.PlaceHolder, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err

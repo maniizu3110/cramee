@@ -11,28 +11,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type teacherRepositoryImpl struct {
-	db *gorm.DB
-	services.TeacherRepository
-}
-
 func NewTeacherRepository(db *gorm.DB) services.TeacherRepository {
 	res := &teacherRepositoryImpl{}
-	res.TeacherRepository = NewTeacherRepository(db)
+	res.db = db
+	res.now = time.Now
 	return res
 }
 
-type TeacherRepositoryImpl struct {
-	db        *gorm.DB
-	companyID uint
-	cache     map[uint]*models.Teacher
-	now       func() time.Time
+type teacherRepositoryImpl struct {
+	db  *gorm.DB
+	now func() time.Time
 }
 
-func (m *TeacherRepositoryImpl) GetByID(id uint, expand ...string) (*models.Teacher, error) {
-	if cache, ok := m.cache[id]; ok && cache != nil && len(expand) == 0 {
-		return cache, nil
-	}
+func (m *teacherRepositoryImpl) GetByID(id uint, expand ...string) (*models.Teacher, error) {
 	data := &models.Teacher{}
 	db := m.db.Unscoped()
 	db, err := querybuilder.BuildExpandQuery(&models.Teacher{}, expand, db, func(db *gorm.DB) *gorm.DB {
@@ -49,7 +40,7 @@ func (m *TeacherRepositoryImpl) GetByID(id uint, expand ...string) (*models.Teac
 
 type GetAllTeacherBaseQueryBuildFunc func(db *gorm.DB) (*gorm.DB, error)
 
-func GetAllTeacherBase(config services.GetAllConfig, db *gorm.DB, companyId uint, queryBuildFunc GetAllTeacherBaseQueryBuildFunc) ([]*models.Teacher, uint, error) {
+func GetAllTeacherBase(config services.GetAllConfig, db *gorm.DB, queryBuildFunc GetAllTeacherBaseQueryBuildFunc) ([]*models.Teacher, uint, error) {
 	var limit int = util.GetAllMaxLimit
 	var offset int = 0
 	var allCount int64
@@ -79,7 +70,7 @@ func GetAllTeacherBase(config services.GetAllConfig, db *gorm.DB, companyId uint
 		return nil, 0, err
 	}
 	q, err = querybuilder.BuildExpandQuery(&models.Teacher{}, config.Expand, q, func(db *gorm.DB) *gorm.DB {
-		return db.Where("company_id = ?", companyId).Unscoped()
+		return db.Unscoped()
 	})
 	if err != nil {
 		return nil, 0, err
@@ -131,19 +122,17 @@ func GetAllTeacherBase(config services.GetAllConfig, db *gorm.DB, companyId uint
 	return model, uint(allCount), nil
 }
 
-func (m *TeacherRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.Teacher, uint, error) {
-	return GetAllTeacherBase(config, m.db, m.companyID, nil)
+func (m *teacherRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.Teacher, uint, error) {
+	return GetAllTeacherBase(config, m.db, nil)
 }
 
-func (m *TeacherRepositoryImpl) Create(data *models.Teacher) (*models.Teacher, error) {
+func (m *teacherRepositoryImpl) Create(data *models.Teacher) (*models.Teacher, error) {
 	data = util.ShallowCopy(data).(*models.Teacher)
 	now := m.now()
 	data.SetUpdatedAt(now)
 	data.SetCreatedAt(now)
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Create(data).Error; err != nil {
+	data.SetPasswordChangedAt(now)
+	if err := m.db.Create(data).Error; err != nil {
 		return nil, err
 	}
 	data, err := m.GetByID(data.GetID())
@@ -153,7 +142,7 @@ func (m *TeacherRepositoryImpl) Create(data *models.Teacher) (*models.Teacher, e
 	return data, nil
 }
 
-func (m *TeacherRepositoryImpl) Update(id uint, data *models.Teacher) (*models.Teacher, error) {
+func (m *teacherRepositoryImpl) Update(id uint, data *models.Teacher) (*models.Teacher, error) {
 	orgData, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -176,11 +165,7 @@ func (m *TeacherRepositoryImpl) Update(id uint, data *models.Teacher) (*models.T
 		}
 	}
 	data.SetUpdatedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Set("gorm:update_column", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -190,16 +175,13 @@ func (m *TeacherRepositoryImpl) Update(id uint, data *models.Teacher) (*models.T
 	return data, nil
 }
 
-func (m *TeacherRepositoryImpl) SoftDelete(id uint) (*models.Teacher, error) {
+func (m *teacherRepositoryImpl) SoftDelete(id uint) (*models.Teacher, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 	data.SetDeletedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -209,7 +191,7 @@ func (m *TeacherRepositoryImpl) SoftDelete(id uint) (*models.Teacher, error) {
 	return data, nil
 }
 
-func (m *TeacherRepositoryImpl) HardDelete(id uint) (*models.Teacher, error) {
+func (m *teacherRepositoryImpl) HardDelete(id uint) (*models.Teacher, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -223,7 +205,7 @@ func (m *TeacherRepositoryImpl) HardDelete(id uint) (*models.Teacher, error) {
 	return data, nil
 }
 
-func (m *TeacherRepositoryImpl) Restore(id uint) (*models.Teacher, error) {
+func (m *teacherRepositoryImpl) Restore(id uint) (*models.Teacher, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -233,6 +215,14 @@ func (m *TeacherRepositoryImpl) Restore(id uint) (*models.Teacher, error) {
 	}
 	data, err = m.GetByID(id)
 	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (m *teacherRepositoryImpl) GetByEmail(email string) (*models.Teacher, error) {
+	data := &models.Teacher{}
+	if err := m.db.Where("email = ?", email).First(data).Error; err != nil {
 		return nil, err
 	}
 	return data, nil

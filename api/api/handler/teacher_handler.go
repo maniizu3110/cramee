@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AssignTeacherHandlers(g *echo.Group) {
+func AssignTeacherHandler(g *echo.Group) {
 	g = g.Group("", func(handler echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			db := c.Get("Tx").(*gorm.DB)
@@ -22,17 +22,17 @@ func AssignTeacherHandlers(g *echo.Group) {
 			return handler(c)
 		}
 	})
-	g.POST("", CreateTeacherHandler)
-	g.PUT("/:id", UpdateTeacherHandler)
-	g.DELETE("/:id", DeleteTeacherHandler)
-	g.PUT("/:id/restore", RestoreTeacherHandler)
-	g.GET("/:id", GetTeacherByIDHandler)
-	g.GET("", GetTeacherListHandler)
+	g.POST("", CreateTeacher)
+	g.PUT("/:id", UpdateTeacher)
+	g.DELETE("/:id", DeleteTeacher)
+	g.PUT("/:id/restore", RestoreTeacher)
+	g.GET("/:id", GetTeacherByID)
+	g.GET("", GetTeacherList)
 }
 
-type CreateTeacherHandlerBaseCallbackFunc func(services.TeacherService, *models.Teacher) (*models.Teacher, error)
+type CreateTeacherBaseCallbackFunc func(services.TeacherService, *models.Teacher) (*models.Teacher, error)
 
-func CreateTeacherHandlerBase(c echo.Context, params interface{}, callback CreateTeacherHandlerBaseCallbackFunc) (err error) {
+func CreateTeacherBase(c echo.Context, params interface{}, callback CreateTeacherBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.TeacherService)
 
 	data := &models.Teacher{}
@@ -57,15 +57,15 @@ func CreateTeacherHandlerBase(c echo.Context, params interface{}, callback Creat
 	return c.JSON(http.StatusCreated, m)
 }
 
-func CreateTeacherHandler(c echo.Context) (err error) {
-	return CreateTeacherHandlerBase(c, nil, func(service services.TeacherService, data *models.Teacher) (*models.Teacher, error) {
+func CreateTeacher(c echo.Context) (err error) {
+	return CreateTeacherBase(c, nil, func(service services.TeacherService, data *models.Teacher) (*models.Teacher, error) {
 		return service.Create(data)
 	})
 }
 
-type UpdateTeacherHandlerBaseCallbackFunc func(services.TeacherService, uint, *models.Teacher) (*models.Teacher, error)
+type UpdateTeacherBaseCallbackFunc func(services.TeacherService, uint, *models.Teacher) (*models.Teacher, error)
 
-func UpdateTeacherHandlerBase(c echo.Context, params interface{}, callback UpdateTeacherHandlerBaseCallbackFunc) (err error) {
+func UpdateTeacherBase(c echo.Context, params interface{}, callback UpdateTeacherBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.TeacherService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -94,15 +94,15 @@ func UpdateTeacherHandlerBase(c echo.Context, params interface{}, callback Updat
 	return c.JSON(http.StatusOK, m)
 }
 
-func UpdateTeacherHandler(c echo.Context) (err error) {
-	return UpdateTeacherHandlerBase(c, nil, func(service services.TeacherService, id uint, data *models.Teacher) (*models.Teacher, error) {
+func UpdateTeacher(c echo.Context) (err error) {
+	return UpdateTeacherBase(c, nil, func(service services.TeacherService, id uint, data *models.Teacher) (*models.Teacher, error) {
 		return service.Update(uint(id), data)
 	})
 }
 
-type DeleteTeacherHandlerBaseCallbackFunc func(services.TeacherService, uint) (*models.Teacher, error)
+type DeleteTeacherBaseCallbackFunc func(services.TeacherService, uint) (*models.Teacher, error)
 
-func DeleteTeacherHandlerBase(c echo.Context, params interface{}, callback DeleteTeacherHandlerBaseCallbackFunc) (err error) {
+func DeleteTeacherBase(c echo.Context, params interface{}, callback DeleteTeacherBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.TeacherService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -121,11 +121,11 @@ func DeleteTeacherHandlerBase(c echo.Context, params interface{}, callback Delet
 	return c.JSON(http.StatusOK, data)
 }
 
-func DeleteTeacherHandler(c echo.Context) (err error) {
+func DeleteTeacher(c echo.Context) (err error) {
 	var param struct {
 		HardDelete bool
 	}
-	return DeleteTeacherHandlerBase(c, &param, func(service services.TeacherService, id uint) (*models.Teacher, error) {
+	return DeleteTeacherBase(c, &param, func(service services.TeacherService, id uint) (*models.Teacher, error) {
 		if param.HardDelete {
 			return service.HardDelete(id)
 		}
@@ -133,9 +133,9 @@ func DeleteTeacherHandler(c echo.Context) (err error) {
 	})
 }
 
-type RestoreTeacherHandlerBaseCallbackFunc func(services.TeacherService, uint) (*models.Teacher, error)
+type RestoreTeacherBaseCallbackFunc func(services.TeacherService, uint) (*models.Teacher, error)
 
-func RestoreTeacherHandlerBase(c echo.Context, params interface{}, callback RestoreTeacherHandlerBaseCallbackFunc) (err error) {
+func RestoreTeacherBase(c echo.Context, params interface{}, callback RestoreTeacherBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.TeacherService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -154,15 +154,15 @@ func RestoreTeacherHandlerBase(c echo.Context, params interface{}, callback Rest
 	return c.JSON(http.StatusOK, m)
 }
 
-func RestoreTeacherHandler(c echo.Context) (err error) {
-	return RestoreTeacherHandlerBase(c, nil, func(service services.TeacherService, id uint) (*models.Teacher, error) {
+func RestoreTeacher(c echo.Context) (err error) {
+	return RestoreTeacherBase(c, nil, func(service services.TeacherService, id uint) (*models.Teacher, error) {
 		return service.Restore(id)
 	})
 }
 
-type GetTeacherByIDHandlerBaseCallbackFunc func(services.TeacherService, uint) (*models.Teacher, error)
+type GetTeacherByIDBaseCallbackFunc func(services.TeacherService, uint) (*models.Teacher, error)
 
-func GetTeacherByIDHandlerBase(c echo.Context, params interface{}, callback GetTeacherByIDHandlerBaseCallbackFunc) (err error) {
+func GetTeacherByIDBase(c echo.Context, params interface{}, callback GetTeacherByIDBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.TeacherService)
 
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -181,11 +181,11 @@ func GetTeacherByIDHandlerBase(c echo.Context, params interface{}, callback GetT
 	return c.JSON(http.StatusOK, m)
 }
 
-func GetTeacherByIDHandler(c echo.Context) (err error) {
+func GetTeacherByID(c echo.Context) (err error) {
 	var param struct {
 		Expand []string
 	}
-	return GetTeacherByIDHandlerBase(c, &param, func(service services.TeacherService, id uint) (*models.Teacher, error) {
+	return GetTeacherByIDBase(c, &param, func(service services.TeacherService, id uint) (*models.Teacher, error) {
 		return service.GetByID(id, param.Expand...)
 	})
 }
@@ -197,9 +197,9 @@ type GetTeacherListResponse struct {
 	Data     []*models.Teacher
 }
 
-type GetTeacherListHandlerBaseCallbackFunc func(services.TeacherService) (*GetTeacherListResponse, error)
+type GetTeacherListBaseCallbackFunc func(services.TeacherService) (*GetTeacherListResponse, error)
 
-func GetTeacherListHandlerBase(c echo.Context, params interface{}, callback GetTeacherListHandlerBaseCallbackFunc) (err error) {
+func GetTeacherListBase(c echo.Context, params interface{}, callback GetTeacherListBaseCallbackFunc) (err error) {
 	service := c.Get("Service").(services.TeacherService)
 	if params != nil {
 		if err = c.Bind(params); err != nil {
@@ -213,12 +213,12 @@ func GetTeacherListHandlerBase(c echo.Context, params interface{}, callback GetT
 	return c.JSON(http.StatusOK, response)
 }
 
-func GetTeacherListHandler(c echo.Context) (err error) {
+func GetTeacherList(c echo.Context) (err error) {
 	var param struct {
 		services.GetAllConfig
 	}
 
-	return GetTeacherListHandlerBase(c, &param, func(service services.TeacherService) (*GetTeacherListResponse, error) {
+	return GetTeacherListBase(c, &param, func(service services.TeacherService) (*GetTeacherListResponse, error) {
 		m, count, err := service.GetAll(param.GetAllConfig)
 		if err != nil {
 			return nil, err
