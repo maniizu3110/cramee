@@ -11,28 +11,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type teacherLectureScheduleRepositoryImpl struct {
-	db *gorm.DB
-	services.TeacherLectureScheduleRepository
-}
-
 func NewTeacherLectureScheduleRepository(db *gorm.DB) services.TeacherLectureScheduleRepository {
 	res := &teacherLectureScheduleRepositoryImpl{}
-	res.TeacherLectureScheduleRepository = NewTeacherLectureScheduleRepository(db)
+	res.db = db
 	return res
 }
 
-type TeacherLectureScheduleRepositoryImpl struct {
-	db        *gorm.DB
-	companyID uint
-	cache     map[uint]*models.TeacherLectureSchedule
-	now       func() time.Time
+type teacherLectureScheduleRepositoryImpl struct {
+	db  *gorm.DB
+	now func() time.Time
 }
 
-func (m *TeacherLectureScheduleRepositoryImpl) GetByID(id uint, expand ...string) (*models.TeacherLectureSchedule, error) {
-	if cache, ok := m.cache[id]; ok && cache != nil && len(expand) == 0 {
-		return cache, nil
-	}
+func (m *teacherLectureScheduleRepositoryImpl) GetByID(id uint, expand ...string) (*models.TeacherLectureSchedule, error) {
 	data := &models.TeacherLectureSchedule{}
 	db := m.db.Unscoped()
 	db, err := querybuilder.BuildExpandQuery(&models.TeacherLectureSchedule{}, expand, db, func(db *gorm.DB) *gorm.DB {
@@ -49,7 +39,7 @@ func (m *TeacherLectureScheduleRepositoryImpl) GetByID(id uint, expand ...string
 
 type GetAllTeacherLectureScheduleBaseQueryBuildFunc func(db *gorm.DB) (*gorm.DB, error)
 
-func GetAllTeacherLectureScheduleBase(config services.GetAllConfig, db *gorm.DB, companyId uint, queryBuildFunc GetAllTeacherLectureScheduleBaseQueryBuildFunc) ([]*models.TeacherLectureSchedule, uint, error) {
+func GetAllTeacherLectureScheduleBase(config services.GetAllConfig, db *gorm.DB, queryBuildFunc GetAllTeacherLectureScheduleBaseQueryBuildFunc) ([]*models.TeacherLectureSchedule, uint, error) {
 	var limit int = util.GetAllMaxLimit
 	var offset int = 0
 	var allCount int64
@@ -79,7 +69,7 @@ func GetAllTeacherLectureScheduleBase(config services.GetAllConfig, db *gorm.DB,
 		return nil, 0, err
 	}
 	q, err = querybuilder.BuildExpandQuery(&models.TeacherLectureSchedule{}, config.Expand, q, func(db *gorm.DB) *gorm.DB {
-		return db.Where("company_id = ?", companyId).Unscoped()
+		return db.Unscoped()
 	})
 	if err != nil {
 		return nil, 0, err
@@ -131,19 +121,16 @@ func GetAllTeacherLectureScheduleBase(config services.GetAllConfig, db *gorm.DB,
 	return model, uint(allCount), nil
 }
 
-func (m *TeacherLectureScheduleRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.TeacherLectureSchedule, uint, error) {
-	return GetAllTeacherLectureScheduleBase(config, m.db, m.companyID, nil)
+func (m *teacherLectureScheduleRepositoryImpl) GetAll(config services.GetAllConfig) ([]*models.TeacherLectureSchedule, uint, error) {
+	return GetAllTeacherLectureScheduleBase(config, m.db, nil)
 }
 
-func (m *TeacherLectureScheduleRepositoryImpl) Create(data *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error) {
+func (m *teacherLectureScheduleRepositoryImpl) Create(data *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error) {
 	data = util.ShallowCopy(data).(*models.TeacherLectureSchedule)
 	now := m.now()
 	data.SetUpdatedAt(now)
 	data.SetCreatedAt(now)
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Create(data).Error; err != nil {
+	if err := m.db.Create(data).Error; err != nil {
 		return nil, err
 	}
 	data, err := m.GetByID(data.GetID())
@@ -153,7 +140,7 @@ func (m *TeacherLectureScheduleRepositoryImpl) Create(data *models.TeacherLectur
 	return data, nil
 }
 
-func (m *TeacherLectureScheduleRepositoryImpl) Update(id uint, data *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error) {
+func (m *teacherLectureScheduleRepositoryImpl) Update(id uint, data *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error) {
 	orgData, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -176,11 +163,7 @@ func (m *TeacherLectureScheduleRepositoryImpl) Update(id uint, data *models.Teac
 		}
 	}
 	data.SetUpdatedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Set("gorm:update_column", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -190,16 +173,13 @@ func (m *TeacherLectureScheduleRepositoryImpl) Update(id uint, data *models.Teac
 	return data, nil
 }
 
-func (m *TeacherLectureScheduleRepositoryImpl) SoftDelete(id uint) (*models.TeacherLectureSchedule, error) {
+func (m *teacherLectureScheduleRepositoryImpl) SoftDelete(id uint) (*models.TeacherLectureSchedule, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 	data.SetDeletedAt(m.now())
-	if err := m.db.
-		Set("gorm:save_associations", false).
-		Set("gorm:association_save_reference", false).
-		Unscoped().Save(data).Error; err != nil {
+	if err := m.db.Unscoped().Save(data).Error; err != nil {
 		return nil, err
 	}
 	data, err = m.GetByID(id)
@@ -209,7 +189,7 @@ func (m *TeacherLectureScheduleRepositoryImpl) SoftDelete(id uint) (*models.Teac
 	return data, nil
 }
 
-func (m *TeacherLectureScheduleRepositoryImpl) HardDelete(id uint) (*models.TeacherLectureSchedule, error) {
+func (m *teacherLectureScheduleRepositoryImpl) HardDelete(id uint) (*models.TeacherLectureSchedule, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -223,7 +203,7 @@ func (m *TeacherLectureScheduleRepositoryImpl) HardDelete(id uint) (*models.Teac
 	return data, nil
 }
 
-func (m *TeacherLectureScheduleRepositoryImpl) Restore(id uint) (*models.TeacherLectureSchedule, error) {
+func (m *teacherLectureScheduleRepositoryImpl) Restore(id uint) (*models.TeacherLectureSchedule, error) {
 	data, err := m.GetByID(id)
 	if err != nil {
 		return nil, err

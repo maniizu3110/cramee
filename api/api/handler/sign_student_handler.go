@@ -1,13 +1,16 @@
 package handler
 
 import (
+	"cramee/api/repository"
 	"cramee/api/services"
+	"cramee/models"
 	"cramee/myerror"
 	"cramee/token"
 	"cramee/util"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func AssignSignStudentHandler(g *echo.Group) {
@@ -15,18 +18,20 @@ func AssignSignStudentHandler(g *echo.Group) {
 		return func(c echo.Context) error {
 			conf := c.Get("config").(util.Config)
 			tk := c.Get("tk").(token.Maker)
-			s := services.NewSignStudentService(conf, tk)
+			db := c.Get("Tx").(*gorm.DB)
+			r := repository.NewStudentRepository(db)
+			s := services.NewSignStudentService(r, conf, tk)
 			c.Set("Service", s)
 			return handler(c)
 		}
 	})
 	g.POST("", CreateStudentHandler)
-	g.POST("/login", LoginStudentHandler)
+	//g.POST("/login", LoginStudentHandler)
 }
 
 func CreateStudentHandler(c echo.Context) error {
 	services := c.Get("Service").(services.SignStudentService)
-	params := &services.CreateStudentParams{}
+	params := &models.Student{}
 	if err := c.Bind(params); err != nil {
 		return myerror.NewPublic(myerror.ErrBindData, err)
 	}
@@ -40,18 +45,18 @@ func CreateStudentHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, student)
 }
 
-func LoginStudentHandler(c echo.Context) error {
-	services := c.Get("Service").(services.SignStudentService)
-	params := &services.LoginStudentParams{}
-	if err := c.Bind(params); err != nil {
-		return myerror.NewPublic(myerror.ErrBindData, err)
-	}
-	if err := c.Validate(params); err != nil {
-		return myerror.New(myerror.ErrRequestData, err, err)
-	}
-	res, err := services.LoginStudent(params)
-	if err != nil {
-		return myerror.NewPublic(myerror.ErrLogin, err)
-	}
-	return c.JSON(http.StatusOK, res)
-}
+//func LoginStudentHandler(c echo.Context) error {
+//	services := c.Get("Service").(services.SignStudentService)
+//	params := &services.LoginStudentParams{}
+//	if err := c.Bind(params); err != nil {
+//		return myerror.NewPublic(myerror.ErrBindData, err)
+//	}
+//	if err := c.Validate(params); err != nil {
+//		return myerror.New(myerror.ErrRequestData, err, err)
+//	}
+//	res, err := services.LoginStudent(params)
+//	if err != nil {
+//		return myerror.NewPublic(myerror.ErrLogin, err)
+//	}
+//	return c.JSON(http.StatusOK, res)
+//}
