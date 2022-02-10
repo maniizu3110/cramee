@@ -5,7 +5,7 @@ import "fmt"
 // CreateMeetingOptions are the options to create a meeting with
 type CreateMeetingOptions struct {
 	//TODO:validation
-	HostID         string          `json:"host_id"`
+	HostID         string          `json:"host_id" validate:"required"`
 	Topic          string          `json:"topic,omitempty"`
 	Type           MeetingType     `json:"type,omitempty"`
 	StartTime      *Time           `json:"start_time,omitempty"`
