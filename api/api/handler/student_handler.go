@@ -3,12 +3,16 @@ package handler
 import (
 	"cramee/api/repository"
 	"cramee/api/services"
+	"cramee/api/services/types"
 	"cramee/models"
+	"cramee/token"
+	"cramee/util"
 	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/stripe/stripe-go/v72/client"
 	"gorm.io/gorm"
 )
 
@@ -16,8 +20,13 @@ func AssignStudentHandler(g *echo.Group) {
 	g = g.Group("", func(handler echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			db := c.Get("Tx").(*gorm.DB)
+			conf := c.Get("config").(util.Config)
+			tk := c.Get("tk").(token.Maker)
+			sc := c.Get("sc").(*client.API)
+
 			r := repository.NewStudentRepository(db)
-			s := services.NewStudentService(r)
+			ss := services.NewStripeService(conf, tk, sc)
+			s := services.NewStudentService(r, ss)
 			c.Set("Service", s)
 			return handler(c)
 		}
@@ -28,6 +37,7 @@ func AssignStudentHandler(g *echo.Group) {
 	g.PUT("/:id/restore", RestoreStudent)
 	g.GET("/:id", GetStudentByID)
 	g.GET("", GetStudentList)
+	g.POST("/charge", ChargeWithID)
 }
 
 type CreateStudentBaseCallbackFunc func(services.StudentService, *models.Student) (*models.Student, error)
@@ -230,4 +240,20 @@ func GetStudentList(c echo.Context) (err error) {
 			Data:     m,
 		}, nil
 	})
+}
+
+func ChargeWithID(c echo.Context) error {
+	services := c.Get("Service").(services.StudentService)
+	params := &types.ChargeWithIDParams{}
+	if err := c.Bind(params); err != nil {
+		return errors.New(err.Error())
+	}
+	if err := c.Validate(params); err != nil {
+		return err
+	}
+	charge, err := services.ChargeWithID(params)
+	if err != nil {
+		return nil
+	}
+	return c.JSON(http.StatusOK, charge)
 }

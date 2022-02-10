@@ -26,6 +26,9 @@ func AssignStripeHandler(g *echo.Group) {
 	})
 	g.POST("/customer", CreateCustomer)
 	g.POST("/card", CreateCard)
+	//TODO:セキュリティのためHTTPで実行できないようにする
+	g.POST("/charge", Charge)
+
 }
 func CreateCustomer(c echo.Context) error {
 	services := c.Get("Service").(services.StripeService)
@@ -52,6 +55,21 @@ func CreateCard(c echo.Context) error {
 		return err
 	}
 	client, err := services.CreateCard(params)
+	if err != nil {
+		return nil
+	}
+	return c.JSON(http.StatusOK, client)
+}
+func Charge(c echo.Context) error {
+	services := c.Get("Service").(services.StripeService)
+	params := &stripe.ChargeParams{}
+	if err := c.Bind(params); err != nil {
+		return errors.New(err.Error())
+	}
+	if err := c.Validate(params); err != nil {
+		return err
+	}
+	client, err := services.Charge(params)
 	if err != nil {
 		return nil
 	}
