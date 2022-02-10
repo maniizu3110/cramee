@@ -10,6 +10,7 @@ import (
 
 type StripeService interface {
 	CreateCustomer(params *stripe.CustomerParams) (*stripe.Customer, error)
+	CreateCard(params *stripe.CardParams) (*stripe.Card, error)
 }
 
 type StripeRepository interface {
@@ -35,4 +36,11 @@ func (s *stripeServiceImpl) CreateCustomer(params *stripe.CustomerParams) (*stri
 		return nil, err
 	}
 	return customer, nil
+}
+func (s *stripeServiceImpl) CreateCard(params *stripe.CardParams) (*stripe.Card, error) {
+	card, err := s.stripeClient.Cards.New(params)
+	if err != nil {
+		return nil, err
+	}
+	return card, nil
 }

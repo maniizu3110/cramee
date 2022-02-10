@@ -25,6 +25,7 @@ func AssignStripeHandler(g *echo.Group) {
 		}
 	})
 	g.POST("/customer", CreateCustomer)
+	g.POST("/card", CreateCard)
 }
 func CreateCustomer(c echo.Context) error {
 	services := c.Get("Service").(services.StripeService)
@@ -40,5 +41,19 @@ func CreateCustomer(c echo.Context) error {
 		return nil
 	}
 	return c.JSON(http.StatusOK, client)
-
+}
+func CreateCard(c echo.Context) error {
+	services := c.Get("Service").(services.StripeService)
+	params := &stripe.CardParams{}
+	if err := c.Bind(params); err != nil {
+		return errors.New(err.Error())
+	}
+	if err := c.Validate(params); err != nil {
+		return err
+	}
+	client, err := services.CreateCard(params)
+	if err != nil {
+		return nil
+	}
+	return c.JSON(http.StatusOK, client)
 }
