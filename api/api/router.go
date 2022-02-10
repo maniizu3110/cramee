@@ -28,21 +28,24 @@ func (server *Server) SetRouter() *echo.Echo {
 			middleware.SetDB(server.db),
 			middleware.SetConfig(server.config),
 			middleware.SetTokenMaker(server.tokenMaker),
+			middleware.SetStripeClient(server.config),
 		)
 		handler.AssignSignStudentHandler(g.Group("/sign-student"))
 		handler.AssignSignTeacherHandler(g.Group("/sign-teacher"))
 	}
 	{
-		// 認証必要
+		// 要認証
 		g := e.Group("/v1",
 			middleware.SetDB(server.db),
 			middleware.SetConfig(server.config),
 			middleware.SetTokenMaker(server.tokenMaker),
+			middleware.SetStripeClient(server.config),
 			middleware.AuthMiddleware(server.tokenMaker),
 		)
 		handler.AssignStudentHandler(g.Group("/student"))
 		handler.AssignTeacherHandler(g.Group("/student"))
 		handler.AssignZoomHandler(g.Group("/zoom"))
+		handler.AssignStripeHandler(g.Group("/stripe"))
 		handler.AssignTeacherLectureScheduleHandler(g.Group("/teacher-lecture-schedule"))
 	}
 	return e
