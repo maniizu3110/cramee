@@ -33,6 +33,7 @@ CREATE TABLE `students` (
   `address` longtext,
   `hashed_password` varchar(191) DEFAULT NULL,
   `image` longtext,
+  `stripe_id` longtext,
   `password_changed_at` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `phone_number` (`phone_number`),
