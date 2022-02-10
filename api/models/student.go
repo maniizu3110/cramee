@@ -14,6 +14,7 @@ type Student struct {
 	Address                 string                   `json:"address"`
 	HashedPassword          string                   `json:"hashed_password" gorm:"unique"`
 	Image                   string                   `json:"image"`
+	StripeID                string                   `json:"stripe_id"`
 	PasswordChangedAt       time.Time                `json:"password_changed_at"`
 	StudentLectureSchedules []StudentLectureSchedule `json:"student_lecture_schedules"`
 }

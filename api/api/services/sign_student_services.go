@@ -41,7 +41,7 @@ func (s *signStudentServiceImpl) CreateStudent(params *models.Student) (*models.
 	if err != nil {
 		return nil, myerror.NewPublic(myerror.ErrCreate, err)
 	}
-	_, err = s.stripeService.CreateCustomer(&stripe.CustomerParams{
+	client, err := s.stripeService.CreateCustomer(&stripe.CustomerParams{
 		//TODO:登録する情報を増やす
 		Email: &student.Email,
 		Phone: &student.PhoneNumber,
@@ -49,7 +49,11 @@ func (s *signStudentServiceImpl) CreateStudent(params *models.Student) (*models.
 	if err != nil {
 		return nil, err
 	}
-
+	student.StripeID = client.ID
+	student, err = s.repo.Update(student.ID, student)
+	if err != nil {
+		return nil, err
+	}
 	return student.GetLimitedInfo(), nil
 }
 
