@@ -2,9 +2,9 @@ package handler
 
 import (
 	"cramee/api/services"
+	"cramee/lib/zoom"
 	"cramee/token"
 	"cramee/util"
-	"cramee/zoom"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

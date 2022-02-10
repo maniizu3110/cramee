@@ -1,9 +1,9 @@
 package services
 
 import (
+	"cramee/lib/zoom"
 	"cramee/token"
 	"cramee/util"
-	"cramee/zoom"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=${GOPACKAGE}_mock/${GOFILE}.mock.go -package=${GOPACKAGE}_mock
