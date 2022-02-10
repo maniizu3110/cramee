@@ -23,12 +23,16 @@ func AssignZoomHandler(g *echo.Group) {
 	})
 	g.POST("/create-meeting", CreateZoomMeeting)
 	g.GET("/users", GetUsers)
+	g.POST("/create-user", CreateUser)
 }
 
 func GetUsers(c echo.Context) error {
 	service := c.Get("Service").(services.ZoomService)
 	params := &zoom.ListUsersOptions{}
 	if err := c.Bind(params); err != nil {
+		return err
+	}
+	if err := c.Validate(params); err != nil {
 		return err
 	}
 	users, err := service.ListUsers(*params)
@@ -44,7 +48,32 @@ func CreateZoomMeeting(c echo.Context) error {
 	if err := c.Bind(params); err != nil {
 		return err
 	}
+	if err := c.Validate(params); err != nil {
+		return err
+	}
 	url, err := service.CreateMeeting(*params)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, url)
+}
+
+func CreateUser(c echo.Context) error {
+	//TODO:登録するにはzoomProじゃないといけないらしい
+	//TODO:エラーがログとして出力されるだけで帰ってきていないのでmyerror使うようにする
+	service := c.Get("Service").(services.ZoomService)
+	params := &zoom.CreateUserOptions{}
+	if err := c.Bind(params); err != nil {
+		return err
+	}
+	if params.Action == "" {
+		params.Action = zoom.AutoCreate
+	}
+	if err := c.Validate(params); err != nil {
+		return err
+	}
+	url, err := service.CreateUser(*params)
 	if err != nil {
 		return err
 	}

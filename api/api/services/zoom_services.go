@@ -10,6 +10,7 @@ import (
 type ZoomService interface {
 	ListUsers(opts zoom.ListUsersOptions) (zoom.ListUsersResponse, error)
 	CreateMeeting(opts zoom.CreateMeetingOptions) (zoom.Meeting, error)
+	CreateUser(opts zoom.CreateUserOptions) (zoom.User, error)
 }
 
 type zoomServiceImpl struct {
@@ -37,6 +38,13 @@ func (z *zoomServiceImpl) CreateMeeting(opts zoom.CreateMeetingOptions) (zoom.Me
 	res, err := z.client.CreateMeeting(opts)
 	if err != nil {
 		return zoom.Meeting{}, err
+	}
+	return res, nil
+}
+func (z *zoomServiceImpl) CreateUser(opts zoom.CreateUserOptions) (zoom.User, error) {
+	res, err := z.client.CreateUser(opts)
+	if err != nil {
+		return zoom.User{}, err
 	}
 	return res, nil
 }
