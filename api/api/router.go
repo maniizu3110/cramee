@@ -32,16 +32,17 @@ func (server *Server) SetRouter() *echo.Echo {
 		handler.AssignSignStudentHandler(g.Group("/sign-student"))
 		handler.AssignSignTeacherHandler(g.Group("/sign-teacher"))
 	}
-	//{
-	//	// 認証必要
-	//	g := e.Group("/v1",
-	//		middleware.SetDB(server.db),
-	//		middleware.SetConfig(server.config),
-	//		middleware.AuthMiddleware(server.tokenMaker),
-	//	)
-	//	handler.AssignStudentHandler(g.Group("/student"))
-	//	handler.AssignTeacherHandler(g.Group("/student"))
-	//	handler.AssignTeacherLectureScheduleHandler(g.Group("/teacher-lecture-schedule"))
-	//}
+	{
+		// 認証必要
+		g := e.Group("/v1",
+			middleware.SetDB(server.db),
+			middleware.SetConfig(server.config),
+			middleware.AuthMiddleware(server.tokenMaker),
+		)
+		handler.AssignStudentHandler(g.Group("/student"))
+		handler.AssignTeacherHandler(g.Group("/student"))
+		handler.AssignZoomHandler(g.Group("/zoom"))
+		handler.AssignTeacherLectureScheduleHandler(g.Group("/teacher-lecture-schedule"))
+	}
 	return e
 }
