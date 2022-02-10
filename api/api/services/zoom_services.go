@@ -9,6 +9,7 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=${GOPACKAGE}_mock/${GOFILE}.mock.go -package=${GOPACKAGE}_mock
 type ZoomService interface {
 	ListUsers(opts zoom.ListUsersOptions) (zoom.ListUsersResponse, error)
+	CreateMeeting(opts zoom.CreateMeetingOptions) (zoom.Meeting, error)
 }
 
 type zoomServiceImpl struct {
@@ -29,6 +30,13 @@ func (z *zoomServiceImpl) ListUsers(opts zoom.ListUsersOptions) (zoom.ListUsersR
 	res, err := z.client.ListUsers(opts)
 	if err != nil {
 		return zoom.ListUsersResponse{}, err
+	}
+	return res, nil
+}
+func (z *zoomServiceImpl) CreateMeeting(opts zoom.CreateMeetingOptions) (zoom.Meeting, error) {
+	res, err := z.client.CreateMeeting(opts)
+	if err != nil {
+		return zoom.Meeting{}, err
 	}
 	return res, nil
 }
