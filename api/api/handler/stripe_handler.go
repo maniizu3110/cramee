@@ -24,7 +24,7 @@ func AssignStripeHandler(g *echo.Group) {
 			return handler(c)
 		}
 	})
-	g.POST("", CreateCustomer)
+	g.POST("/customer", CreateCustomer)
 }
 func CreateCustomer(c echo.Context) error {
 	services := c.Get("Service").(services.StripeService)
