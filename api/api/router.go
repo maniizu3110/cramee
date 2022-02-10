@@ -37,6 +37,7 @@ func (server *Server) SetRouter() *echo.Echo {
 		g := e.Group("/v1",
 			middleware.SetDB(server.db),
 			middleware.SetConfig(server.config),
+			middleware.SetTokenMaker(server.tokenMaker),
 			middleware.AuthMiddleware(server.tokenMaker),
 		)
 		handler.AssignStudentHandler(g.Group("/student"))

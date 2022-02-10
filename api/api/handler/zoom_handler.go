@@ -21,7 +21,7 @@ func AssignZoomHandler(g *echo.Group) {
 			return handler(c)
 		}
 	})
-	//g.POST("/create-meeting", CreateZoomMeeting)
+	g.POST("/create-meeting", CreateZoomMeeting)
 	g.GET("/users", GetUsers)
 }
 
