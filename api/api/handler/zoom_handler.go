@@ -38,12 +38,16 @@ func GetUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
-//func CreateZoomMeeting(c echo.Context) error {
-//	service := c.Get("Service").(services.ZoomService)
-//	url, err := service.CreateMeeting(1000, "maniizu3110@gmail.com")
-//	if err != nil {
-//		return err
-//	}
+func CreateZoomMeeting(c echo.Context) error {
+	service := c.Get("Service").(services.ZoomService)
+	params := &zoom.CreateMeetingOptions{}
+	if err := c.Bind(params); err != nil {
+		return err
+	}
+	url, err := service.CreateMeeting(*params)
+	if err != nil {
+		return err
+	}
 
-//	return c.JSON(http.StatusOK, url)
-//}
+	return c.JSON(http.StatusOK, url)
+}
