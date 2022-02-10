@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/stripe/stripe-go/v72/client"
 	"gorm.io/gorm"
 )
 
@@ -20,8 +21,10 @@ func AssignSignStudentHandler(g *echo.Group) {
 			conf := c.Get("config").(util.Config)
 			tk := c.Get("tk").(token.Maker)
 			db := c.Get("Tx").(*gorm.DB)
+			sc := c.Get("sc").(*client.API)
+			ss := services.NewStripeService(conf, tk, sc)
 			r := repository.NewStudentRepository(db)
-			s := services.NewSignStudentService(r, conf, tk)
+			s := services.NewSignStudentService(r, conf, tk, ss)
 			c.Set("Service", s)
 			return handler(c)
 		}
