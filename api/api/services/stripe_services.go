@@ -11,6 +11,7 @@ import (
 type StripeService interface {
 	CreateCustomer(params *stripe.CustomerParams) (*stripe.Customer, error)
 	CreateCard(params *stripe.CardParams) (*stripe.Card, error)
+	Charge(params *stripe.ChargeParams) (*stripe.Charge, error)
 }
 
 type StripeRepository interface {
@@ -43,4 +44,11 @@ func (s *stripeServiceImpl) CreateCard(params *stripe.CardParams) (*stripe.Card,
 		return nil, err
 	}
 	return card, nil
+}
+func (s *stripeServiceImpl) Charge(params *stripe.ChargeParams) (*stripe.Charge, error) {
+	charge, err := s.stripeClient.Charges.New(params)
+	if err != nil {
+		return nil, err
+	}
+	return charge, nil
 }
