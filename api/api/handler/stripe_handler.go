@@ -4,8 +4,12 @@ import (
 	"cramee/api/services"
 	"cramee/token"
 	"cramee/util"
+	"errors"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/client"
 )
 
 func AssignStripeHandler(g *echo.Group) {
@@ -13,9 +17,28 @@ func AssignStripeHandler(g *echo.Group) {
 		return func(c echo.Context) error {
 			conf := c.Get("config").(util.Config)
 			tk := c.Get("tk").(token.Maker)
-			s := services.NewStripeService(conf, tk)
+			sc := c.Get("sc").(*client.API)
+
+			s := services.NewStripeService(conf, tk, sc)
 			c.Set("Service", s)
 			return handler(c)
 		}
 	})
+	g.POST("", CreateCustomer)
+}
+func CreateCustomer(c echo.Context) error {
+	services := c.Get("Service").(services.StripeService)
+	params := &stripe.CustomerParams{}
+	if err := c.Bind(params); err != nil {
+		return errors.New(err.Error())
+	}
+	if err := c.Validate(params); err != nil {
+		return err
+	}
+	client, err := services.CreateCustomer(params)
+	if err != nil {
+		return nil
+	}
+	return c.JSON(http.StatusOK, client)
+
 }
