@@ -60,7 +60,7 @@ func CreateZoomMeeting(c echo.Context) error {
 }
 
 func CreateUser(c echo.Context) error {
-	//TODO:登録するにはzoomProじゃないといけないらしい
+	//TODO:登録するにはzoomProじゃないといけないらしい??
 	//TODO:エラーがログとして出力されるだけで帰ってきていないのでmyerror使うようにする
 	service := c.Get("Service").(services.ZoomService)
 	params := &zoom.CreateUserOptions{}
@@ -68,7 +68,7 @@ func CreateUser(c echo.Context) error {
 		return err
 	}
 	if params.Action == "" {
-		params.Action = zoom.AutoCreate
+		params.Action = zoom.Create
 	}
 	if err := c.Validate(params); err != nil {
 		return err
