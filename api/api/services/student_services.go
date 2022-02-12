@@ -1,6 +1,11 @@
 package services
 
-import "cramee/models"
+import (
+	"cramee/api/services/types"
+	"cramee/models"
+
+	"github.com/stripe/stripe-go/v72"
+)
 
 //go:generate $GOPATH/bin/mockgen -source=$GOFILE -destination=${GOPACKAGE}_mock/${GOFILE}.mock.go -package=${GOPACKAGE}_mock
 
@@ -12,7 +17,7 @@ type StudentRepository interface {
 	SoftDelete(id uint) (*models.Student, error)
 	HardDelete(id uint) (*models.Student, error)
 	Restore(id uint) (*models.Student, error)
-	GetByEmail(email string) (*models.Student, error) 
+	GetByEmail(email string) (*models.Student, error)
 }
 
 type StudentService interface {
@@ -23,16 +28,18 @@ type StudentService interface {
 	SoftDelete(id uint) (*models.Student, error)
 	HardDelete(id uint) (*models.Student, error)
 	Restore(id uint) (*models.Student, error)
+	ChargeWithID(params *types.ChargeWithIDParams) (*stripe.Charge, error)
 }
 
 type studentServiceImpl struct {
-	repo StudentRepository
-	StudentService
+	repo          StudentRepository
+	stripeService StripeService
 }
 
-func NewStudentService(repository StudentRepository) StudentService {
+func NewStudentService(repository StudentRepository, stripeService StripeService) StudentService {
 	res := &studentServiceImpl{}
 	res.repo = repository
+	res.stripeService = stripeService
 	return res
 }
 
@@ -62,4 +69,15 @@ func (c *studentServiceImpl) HardDelete(id uint) (*models.Student, error) {
 
 func (c *studentServiceImpl) Restore(id uint) (*models.Student, error) {
 	return c.repo.Restore(id)
+}
+func (c *studentServiceImpl) ChargeWithID(params *types.ChargeWithIDParams) (*stripe.Charge, error) {
+	student, err := c.GetByID(params.StudentID)
+	if err != nil {
+		return nil, err
+	}
+	chargeParams := &stripe.ChargeParams{
+		Amount:   &params.Amount,
+		Customer: &student.StripeID,
+	}
+	return c.stripeService.Charge(chargeParams)
 }

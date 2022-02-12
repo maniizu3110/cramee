@@ -13,6 +13,11 @@ type Config struct {
 	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	Env                 string        `mapstructure:"ENV"`
+	StripeKey           string        `mapstructure:"STRIPE_KEY"`
+	StripeSecretKey     string        `mapstructure:"STRIPE_SECRET_KEY"`
+	ZoomApiKey          string        `mapstructure:"ZOOM_API_KEY"`
+	ZoomApiSecret       string        `mapstructure:"ZOOM_API_SECRET"`
+	ZoomUserId          string        `mapstructure:"ZOOM_USER_ID"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

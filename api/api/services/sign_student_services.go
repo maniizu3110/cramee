@@ -6,6 +6,8 @@ import (
 	"cramee/myerror"
 	"cramee/token"
 	"cramee/util"
+
+	"github.com/stripe/stripe-go/v72"
 )
 
 type SignStudentService interface {
@@ -14,16 +16,18 @@ type SignStudentService interface {
 }
 
 type signStudentServiceImpl struct {
-	repo       StudentRepository
-	config     util.Config
-	tokenMaker token.Maker
+	repo          StudentRepository
+	config        util.Config
+	tokenMaker    token.Maker
+	stripeService StripeService
 }
 
-func NewSignStudentService(repository StudentRepository, config util.Config, tokenMaker token.Maker) SignStudentService {
+func NewSignStudentService(repository StudentRepository, config util.Config, tokenMaker token.Maker, stripeService StripeService) SignStudentService {
 	res := &signStudentServiceImpl{}
 	res.repo = repository
 	res.config = config
 	res.tokenMaker = tokenMaker
+	res.stripeService = stripeService
 	return res
 }
 
@@ -36,6 +40,19 @@ func (s *signStudentServiceImpl) CreateStudent(params *models.Student) (*models.
 	student, err := s.repo.Create(params)
 	if err != nil {
 		return nil, myerror.NewPublic(myerror.ErrCreate, err)
+	}
+	client, err := s.stripeService.CreateCustomer(&stripe.CustomerParams{
+		//TODO:登録する情報を増やす
+		Email: &student.Email,
+		Phone: &student.PhoneNumber,
+	})
+	if err != nil {
+		return nil, err
+	}
+	student.StripeID = client.ID
+	student, err = s.repo.Update(student.ID, student)
+	if err != nil {
+		return nil, err
 	}
 	return student.GetLimitedInfo(), nil
 }
