@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <button>test</button>
     <div
       v-shortkey="['ctrl', '/']"
       class="d-flex flex-grow-1"

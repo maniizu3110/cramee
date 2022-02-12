@@ -156,7 +156,7 @@ export default {
         xaxis: this.xaxis,
         tooltip: {
           followCursor: true,
-          theme: 'dark',
+          theme: 'light',
           custom: function({ ctx, series, seriesIndex, dataPointIndex, w }) {
             const seriesName = w.config.series[seriesIndex].name
 
