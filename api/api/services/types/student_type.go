@@ -11,6 +11,11 @@ type LoginStudentRequest struct {
 }
 
 type LoginStudentResponse struct {
-	AccessToken string                    `json:"access_token"`
+	AccessToken string                     `json:"access_token"`
 	Student     *models.LimitedStudentInfo `json:"student"`
+}
+
+type ChargeWithIDParams struct {
+	Amount    int64 `json:"amount"`
+	StudentID uint  `json:"student_id"`
 }
