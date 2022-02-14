@@ -1,5 +1,13 @@
 <template>
-    <div>
-        講師ページ
-    </div>
+  <div>
+    <month-calender />
+  </div>
 </template>
+<script>
+import MonthCalender from "../../components/calendar/MonthCalendar.vue";
+export default {
+  components: {
+    MonthCalender,
+  },
+};
+</script>
