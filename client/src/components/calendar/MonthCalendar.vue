@@ -29,6 +29,16 @@
                     </v-card-title>
                     <v-card-text>
                       <v-container>
+                        <v-row cols="12" sm="10">
+                          <v-col>
+                            <v-row justify="center">
+                              <v-date-picker
+                                v-model="picker"
+                                full-width
+                              ></v-date-picker>
+                            </v-row>
+                          </v-col>
+                        </v-row>
                         <v-row>
                           <v-col cols="6">
                             <v-dialog
@@ -210,11 +220,15 @@ import moment from "moment";
 import { mapState } from "vuex";
 export default {
   data: () => ({
+    picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+      .toISOString()
+      .substr(0, 10),
+    moment: moment,
     dialog: false,
     focus: "",
     type: "month",
     time: null,
-    date: null,
+    date: "",
     timePicker: {
       startTime: null,
       startTimeDialog: false,
@@ -276,24 +290,44 @@ export default {
       this.$refs.calendar.next();
     },
     saveSchedule() {
-      //日時と時間を確認して、goが認識できる形で渡してやる
-      let date = moment(this.date).format("YYYY-MM-DD");
-      console.log(moment(date + " " + this.timePicker.startTime));
-      //this.$axios.post("v1/teacher-lecture-schedule", {
-      //  //TODO:登録前に時間に対してvalidation
-      //  teacher_id: this.id,
-      //  start_time: this.timePicker.startTime,
-      //  end_time: this.timePicker.endTime,
-      //});
+      let pickerDate = moment(this.picker).format("YYYY-MM-DD");
+      let start_time = moment(
+        pickerDate + " " + this.timePicker.startTime
+      ).toISOString();
+      const end_time = moment(
+        picker + " " + this.timePicker.endTime
+      ).toISOString();
+      this.$axios
+        .post("v1/teacher-lecture-schedule", {
+          teacher_id: this.id,
+          start_time: start_time,
+          end_time: end_time,
+        })
+        .then((res) => {
+          this.dialog = false;
+        });
     },
 
     updateRange({ start, end }) {
       //TODO:APIを叩いて登録してあるスケジュールをカレンダーに表示
       const events = [];
-
       const min = new Date(`${start.date}T00:00:00`);
       const max = new Date(`${end.date}T23:59:59`);
       const days = (max.getTime() - min.getTime()) / 86400000;
+      //そもそもgetできていないことに問題がある（大問題）
+      this.$axios
+        .get("v1/teacher-lecture-schedule", {
+          params: {
+            Query: [
+              //`StartTime >= ${moment(min).toISOString()}`,
+              //`EndTime =< ${moment(max).toISOString()}`,
+              //`TeacherID=${this.id}`,
+            ],
+          },
+        })
+        .then((res) => {
+          console.log(res);
+        });
       const eventCount = this.rnd(days, days + 20);
 
       for (let i = 0; i < eventCount; i++) {

@@ -19,8 +19,8 @@ func NewPlaceHolderRepository(db *gorm.DB) services.PlaceHolderRepository {
 }
 
 type placeHolderRepositoryImpl struct {
-	db    *gorm.DB
-	now   func() time.Time
+	db  *gorm.DB
+	now func() time.Time
 }
 
 func (m *placeHolderRepositoryImpl) GetByID(id uint, expand ...string) (*models.PlaceHolder, error) {
@@ -92,6 +92,7 @@ func GetAllPlaceHolderBase(config services.GetAllConfig, db *gorm.DB, queryBuild
 			return false, err
 		}
 		var size int
+		model, size = MergePlaceHolderSlice(model, sub)
 		offset += size
 		limit -= size
 		return size < subLimit || limit < 0, nil
@@ -217,4 +218,11 @@ func (m *placeHolderRepositoryImpl) Restore(id uint) (*models.PlaceHolder, error
 		return nil, err
 	}
 	return data, nil
+}
+
+func MergePlaceHolderSlice(s []*models.PlaceHolder, t []models.PlaceHolder) ([]*models.PlaceHolder, int) {
+	for i := range t {
+		s = append(s, &t[i])
+	}
+	return s, len(t)
 }

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -91,6 +92,8 @@ func GetAllTeacherLectureScheduleBase(config services.GetAllConfig, db *gorm.DB,
 		if err := q.Offset(offset).Limit(subLimit).Find(&sub).Error; err != nil {
 			return false, err
 		}
+		logrus.Info("これが中身")
+		logrus.Info(sub)
 		var size int
 		offset += size
 		limit -= size
