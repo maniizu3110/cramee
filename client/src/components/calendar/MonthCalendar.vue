@@ -313,7 +313,7 @@ export default {
         })
         .then((res) => {
           res.data.Data.forEach((el) => {
-            //TODO:kindを状態によって
+            //TODO:kindを状態によって変更する（emptyで固定されている）
             this.events.push({
               name: this.kind.empty.status,
               start: moment(el.start_time).format("YYYY-MM-DD hh:mm"),
