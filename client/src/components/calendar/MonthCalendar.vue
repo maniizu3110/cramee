@@ -107,7 +107,9 @@
                                 <v-btn
                                   text
                                   color="primary"
-                                  @click="$refs.enddialog.save(timePicker.endTime)"
+                                  @click="
+                                    $refs.enddialog.save(timePicker.endTime)
+                                  "
                                 >
                                   OK
                                 </v-btn>
@@ -122,7 +124,7 @@
                       <v-btn color="blue darken-1" text @click="dialog = false"
                         >Close</v-btn
                       >
-                      <v-btn color="blue darken-1" text @click="dialog = false"
+                      <v-btn color="blue darken-1" text @click="saveSchedule"
                         >Save</v-btn
                       >
                     </v-card-actions>
@@ -159,7 +161,6 @@
               :events="events"
               :event-color="getEventColor"
               :type="type"
-              @click:event="showEvent"
               @click:more="viewDay"
               @click:date="viewDay"
               @change="updateRange"
@@ -204,6 +205,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   data: () => ({
     dialog: false,
@@ -245,6 +247,9 @@ export default {
       "Party",
     ],
   }),
+  computed: {
+    ...mapState("auth", ["isStudent", "isLogin", "id"]),
+  },
   mounted() {
     this.$refs.calendar.checkChange();
   },
@@ -265,22 +270,14 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
-    showEvent({ nativeEvent, event }) {
-      const open = () => {
-        this.selectedEvent = event;
-        this.selectedElement = nativeEvent.target;
-        setTimeout(() => (this.selectedOpen = true), 10);
-      };
-
-      if (this.selectedOpen) {
-        this.selectedOpen = false;
-        setTimeout(open, 10);
-      } else {
-        open();
-      }
-
-      nativeEvent.stopPropagation();
+    saveSchedule() {
+      this.$axios.post("v1/teacher-lecture-schedule", {
+        teacher_id: this.id,
+        start_time: timePicker.startTime,
+        end_time: timePicker.endTime,
+      });
     },
+
     updateRange({ start, end }) {
       //TODO:APIを叩いて登録してあるスケジュールをカレンダーに表示
       const events = [];
