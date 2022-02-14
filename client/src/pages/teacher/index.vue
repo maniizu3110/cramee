@@ -1,13 +1,13 @@
 <template>
   <div class="w-full">
-    <month-calender />
+    <teacher-calender />
   </div>
 </template>
 <script>
-import MonthCalender from "../../components/calendar/MonthCalendar.vue";
+import TeacherCalender from "../../components/calendar/TeacherCalendar.vue";
 export default {
   components: {
-    MonthCalender,
+    TeacherCalender,
   },
 };
 </script>
