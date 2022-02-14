@@ -8,7 +8,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -92,9 +91,8 @@ func GetAllTeacherLectureScheduleBase(config services.GetAllConfig, db *gorm.DB,
 		if err := q.Offset(offset).Limit(subLimit).Find(&sub).Error; err != nil {
 			return false, err
 		}
-		logrus.Info("これが中身")
-		logrus.Info(sub)
 		var size int
+		model, size = MergeTeacherLectureScheduleSlice(model, sub)
 		offset += size
 		limit -= size
 		return size < subLimit || limit < 0, nil
@@ -220,4 +218,11 @@ func (m *teacherLectureScheduleRepositoryImpl) Restore(id uint) (*models.Teacher
 		return nil, err
 	}
 	return data, nil
+}
+
+func MergeTeacherLectureScheduleSlice(s []*models.TeacherLectureSchedule, t []models.TeacherLectureSchedule) ([]*models.TeacherLectureSchedule, int) {
+	for i := range t {
+		s = append(s, &t[i])
+	}
+	return s, len(t)
 }
