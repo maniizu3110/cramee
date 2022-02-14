@@ -1,5 +1,8 @@
 <template>
   <div>
+    <v-snackbar v-model="snackbar" :timeout="timeout">
+      {{ errorMessage }}
+    </v-snackbar>
     <v-card class="text-center pa-1">
       <v-card-title class="justify-center display-1 mb-2">{{
         $t("login.title")
@@ -74,9 +77,13 @@
 import { mapActions } from "vuex";
 export default {
   layout: "auth",
-  name:"signin_student",
+  name: "signin_student",
   data() {
     return {
+      //snackbar
+      snackbar: false,
+      timeout: 2000,
+      errorMessage: "",
       // sign up buttons
       isLoading: false,
       isSignUpDisabled: false,
@@ -110,11 +117,18 @@ export default {
         await this.loginStudent({
           email: this.email,
           password: this.password,
-        }).then((res) => {
-          this.isLoading = false;
-          this.isSignUpDisabled = false;
-          this.$router.push("/");
-        });
+        })
+          .then((res) => {
+            this.isLoading = false;
+            this.isSignUpDisabled = false;
+            this.$router.push("/student");
+          })
+          .catch((e) => {
+            this.errorMessage = e.message;
+            this.snackbar = true;
+            this.isLoading = false;
+            this.isSignUpDisabled = false;
+          });
       }
     },
     resetErrors() {

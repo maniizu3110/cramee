@@ -5,7 +5,9 @@
         $t("login.title")
       }}</v-card-title>
       <v-card-subtitle>{{ $t("login.detail") }}</v-card-subtitle>
-
+      <v-snackbar v-model="snackbar" :timeout="timeout">
+        {{ errorMessage }}
+      </v-snackbar>
       <v-card-text>
         <v-form ref="form" v-model="isFormValid" lazy-validation>
           <v-text-field
@@ -76,6 +78,10 @@ export default {
   layout: "auth",
   data() {
     return {
+      //snackbar
+      snackbar: false,
+      timeout: 2000,
+      errorMessage: "",
       // sign up buttons
       isLoading: false,
       isSignUpDisabled: false,
@@ -110,11 +116,18 @@ export default {
         await this.loginTeacher({
           email: this.email,
           password: this.password,
-        }).then((res) => {
-          console.log(res);
-          this.isLoading = false;
-          this.isSignUpDisabled = false;
-        });
+        })
+          .then((res) => {
+            this.isLoading = false;
+            this.isSignUpDisabled = false;
+            this.$router.push("/teacher");
+          })
+          .catch((e) => {
+            this.errorMessage = e.message;
+            this.snackbar = true;
+            this.isLoading = false;
+            this.isSignUpDisabled = false;
+          });
       }
     },
     resetErrors() {
