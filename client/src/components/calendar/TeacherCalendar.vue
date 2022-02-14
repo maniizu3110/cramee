@@ -297,10 +297,8 @@ export default {
 
     updateRange({ start, end }) {
       //TODO:APIを叩いて登録してあるスケジュールをカレンダーに表示
-      const events = [];
       const min = new Date(`${start.date}T00:00:00`);
       const max = new Date(`${end.date}T23:59:59`);
-      const days = (max.getTime() - min.getTime()) / 86400000;
       this.$axios
         .get("v1/teacher-lecture-schedule", {
           params: {
