@@ -1,5 +1,8 @@
 <template>
   <div>
+    <v-snackbar v-model="snackbar" :timeout="timeout">
+      {{ errorMessage }}
+    </v-snackbar>
     <v-card class="text-center pa-1">
       <v-card-title class="justify-center display-1 mb-2">{{
         $t("register.title")
@@ -87,9 +90,13 @@
 <script>
 export default {
   layout: "auth",
-  name:"signup_student",
+  name: "signup_student",
   data() {
     return {
+      //snackbar
+      snackbar: false,
+      timeout: 2000,
+      errorMessage: "",
       // sign up buttons
       isLoading: false,
       isSignUpDisabled: false,
@@ -133,8 +140,13 @@ export default {
         .then((res) => {
           this.isLoading = false;
           this.isSignUpDisabled = false;
-          this.$router.push("/");
-          //TODO:情報とtokenをstoreに保存して、ホーム画面に戻る
+          this.$router.push("/student/auth/signin");
+        })
+        .catch((e) => {
+          this.errorMessage = e.message;
+          this.snackbar = true;
+          this.isLoading = false;
+          this.isSignUpDisabled = false;
         });
     },
     resetErrors() {

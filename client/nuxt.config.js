@@ -4,7 +4,7 @@ const { locale, availableLocales, fallbackLocale } = config.locales;
 
 export default {
   router: {
-    base: '/'
+    base: "/",
   },
   // ssr: false,
   // target: 'static',
@@ -16,17 +16,16 @@ export default {
     meta: [
       { charset: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { hid: "description", name: "description", content: "" }
+      { hid: "description", name: "description", content: "" },
     ],
     link: [
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
       {
         rel: "stylesheet",
-        href:
-          "https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"
+        href: "https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap",
       },
-      ...config.icons.map(href => ({ rel: "stylesheet", href }))
-    ]
+      ...config.icons.map((href) => ({ rel: "stylesheet", href })),
+    ],
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
@@ -48,14 +47,14 @@ export default {
     { src: "~/filters/lowercase.js" },
     { src: "~/filters/uppercase.js" },
     { src: "~/filters/formatCurrency.js" },
-    { src: "~/filters/formatDate.js" }
+    { src: "~/filters/formatDate.js" },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   // components: true,
   modules: ["@nuxtjs/axios"],
   axios: {
-    baseURL: process.env.BASE_URL || 'http://localhost/api',
+    baseURL: process.env.BASE_URL || "http://localhost/api",
   },
   // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
@@ -67,28 +66,28 @@ export default {
         optionsPath: "~/configs/vuetify.js",
         treeShake: true,
         defaultAssets: {
-          font: false
-        }
-      }
+          font: false,
+        },
+      },
     ],
     [
       "nuxt-i18n",
       {
         detectBrowserLanguage: {
           useCookie: true,
-          cookieKey: "i18n_redirected"
+          cookieKey: "i18n_redirected",
         },
         locales: availableLocales,
         lazy: true,
         langDir: "translations/",
         defaultLocale: locale,
         vueI18n: {
-          fallbackLocale
-        }
-      }
-    ]
+          fallbackLocale,
+        },
+      },
+    ],
   ],
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
-  build: {}
+  build: {},
 };
