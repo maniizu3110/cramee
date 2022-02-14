@@ -41,12 +41,12 @@ export const actions = {
   async loginTeacher(context, payload) {
     let data;
     await this.$axios
-      .post("/v1/sign-teacher/", {
+      .post("/v1/sign-teacher/login", {
         email: payload.email,
         password: payload.password,
       })
       .then((res) => {
-        context.commit("loginTeacher", res.data.Teacher);
+        context.commit("loginTeacher", res.data.teacher);
         localStorage.setItem("Bearer", res.data.access_token);
         data = res.data;
       });

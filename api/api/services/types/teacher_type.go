@@ -12,5 +12,5 @@ type LoginTeacherRequest struct {
 
 type LoginTeacherResponse struct {
 	AccessToken string                     `json:"access_token"`
-	Teacher     *models.LimitedTeacherInfo `json:"student"`
+	Teacher     *models.LimitedTeacherInfo `json:"teacher"`
 }

@@ -132,7 +132,7 @@ export default {
     signUp(phone, email, password) {
       console.log(phone, email, password);
       this.$axios
-        .post("/v1/sign-teacher", {
+        .post("/v1/sign-teacher/with-zoom", {
           phone_number: phone,
           email: email,
           hashed_password: password,
@@ -140,7 +140,7 @@ export default {
         .then((res) => {
           this.isLoading = false;
           this.isSignUpDisabled = false;
-          this.$router.push("/teacher/auth/signin");
+          this.$router.push("/teacher/auth/signin")
         })
         .catch((e) => {
           this.errorMessage = e.message;
