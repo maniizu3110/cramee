@@ -9,17 +9,127 @@
               <v-btn fab text small color="grey darken-2" @click="prev">
                 <v-icon small>mdi-chevron-left</v-icon>
               </v-btn>
-              <v-btn fab text small color="grey darken-2" @click="next">
-                <v-icon small>mdi-chevron-right</v-icon>
-              </v-btn>
               <v-toolbar-title v-if="$refs.calendar">
                 {{ $refs.calendar.title }}
               </v-toolbar-title>
-              <v-spacer></v-spacer>
-              <schedule-dialog />
-              <v-btn outlined class="mr-4" @click="scheduleDialog = true">
-                Add
+              <v-btn fab text small color="grey darken-2" @click="next">
+                <v-icon small>mdi-chevron-right</v-icon>
               </v-btn>
+              <v-spacer></v-spacer>
+              <v-row justify="center">
+                <v-dialog v-model="dialog" persistent max-width="600px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                      Add
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span class="headline">予定追加</span>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="6">
+                            <v-dialog
+                              ref="startdialog"
+                              v-model="timePicker.startTimeDialog"
+                              :return-value.sync="timePicker.startTime"
+                              persistent
+                              width="290px"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="timePicker.startTime"
+                                  label="開始時間"
+                                  prepend-icon="mdi-clock-time-four-outline"
+                                  readonly
+                                  v-bind="attrs"
+                                  v-on="on"
+                                ></v-text-field>
+                              </template>
+                              <v-time-picker
+                                v-if="timePicker.startTimeDialog"
+                                v-model="timePicker.startTime"
+                                full-width
+                              >
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                  text
+                                  color="primary"
+                                  @click="timePicker.startTimeDialog = false"
+                                >
+                                  Cancel
+                                </v-btn>
+                                <v-btn
+                                  text
+                                  color="primary"
+                                  @click="
+                                    $refs.startdialog.save(timePicker.startTime)
+                                  "
+                                >
+                                  OK
+                                </v-btn>
+                              </v-time-picker>
+                            </v-dialog>
+                          </v-col>
+                          <v-col cols="6">
+                            <v-dialog
+                              ref="enddialog"
+                              v-model="timePicker.endTimeDialog"
+                              :return-value.sync="timePicker.endTime"
+                              persistent
+                              width="290px"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="timePicker.endTime"
+                                  label="終了時間"
+                                  prepend-icon="mdi-clock-time-four-outline"
+                                  readonly
+                                  v-bind="attrs"
+                                  v-on="on"
+                                ></v-text-field>
+                              </template>
+                              <v-time-picker
+                                v-if="timePicker.endTimeDialog"
+                                v-model="timePicker.endTime"
+                                full-width
+                              >
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                  text
+                                  color="primary"
+                                  @click="timePicker.endTimeDialog = false"
+                                >
+                                  Cancel
+                                </v-btn>
+                                <v-btn
+                                  text
+                                  color="primary"
+                                  @click="$refs.enddialog.save(timePicker.endTime)"
+                                >
+                                  OK
+                                </v-btn>
+                              </v-time-picker>
+                            </v-dialog>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue darken-1" text @click="dialog = false"
+                        >Close</v-btn
+                      >
+                      <v-btn color="blue darken-1" text @click="dialog = false"
+                        >Save</v-btn
+                      >
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-row>
+
               <v-menu bottom right>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn outlined v-bind="attrs" v-on="on">
@@ -36,9 +146,6 @@
                   </v-list-item>
                   <v-list-item @click="type = 'month'">
                     <v-list-item-title>Month</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="type = '4day'">
-                    <v-list-item-title>4 days</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -97,20 +204,22 @@
 </template>
 
 <script>
-import ScheduleDialog from "./ScheduleDialog";
 export default {
-  components: {
-    ScheduleDialog,
-  },
   data: () => ({
+    dialog: false,
     focus: "",
-    scheduleDialog: false,
     type: "month",
+    time: null,
+    timePicker: {
+      startTime: null,
+      startTimeDialog: false,
+      endTime: null,
+      endTimeDialog: false,
+    },
     typeToLabel: {
       month: "Month",
       week: "Week",
       day: "Day",
-      "4day": "4 Days",
     },
     selectedEvent: {},
     selectedElement: null,
