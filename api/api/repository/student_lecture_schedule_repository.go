@@ -92,6 +92,8 @@ func GetAllStudentLectureScheduleBase(config services.GetAllConfig, db *gorm.DB,
 			return false, err
 		}
 		var size int
+		model, size = MergeStudentLectureScheduleSlice(model, sub)
+
 		offset += size
 		limit -= size
 		return size < subLimit || limit < 0, nil
@@ -217,4 +219,12 @@ func (m *studentLectureScheduleRepositoryImpl) Restore(id uint) (*models.Student
 		return nil, err
 	}
 	return data, nil
+}
+
+
+func MergeStudentLectureScheduleSlice(s []*models.StudentLectureSchedule, t []models.StudentLectureSchedule) ([]*models.StudentLectureSchedule, int) {
+	for i := range t {
+		s = append(s, &t[i])
+	}
+	return s, len(t)
 }

@@ -92,6 +92,8 @@ func GetAllStudentBase(config services.GetAllConfig, db *gorm.DB, queryBuildFunc
 			return false, err
 		}
 		var size int
+		model, size = MergeStudentSlice(model, sub)
+
 		offset += size
 		limit -= size
 		return size < subLimit || limit < 0, nil
@@ -226,4 +228,11 @@ func (m *studentRepositoryImpl) GetByEmail(email string) (*models.Student, error
 		return nil, err
 	}
 	return data, nil
+}
+
+func MergeStudentSlice(s []*models.Student, t []models.Student) ([]*models.Student, int) {
+	for i := range t {
+		s = append(s, &t[i])
+	}
+	return s, len(t)
 }
