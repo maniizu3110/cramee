@@ -67,8 +67,9 @@ func CreateUser(c echo.Context) error {
 	if err := c.Bind(params); err != nil {
 		return err
 	}
+	//TODO:すでにzoomにemailが登録されているかどうかで処理を変える必要性がある
 	if params.Action == "" {
-		params.Action = zoom.Create
+		params.Action = zoom.AutoCreate
 	}
 	if err := c.Validate(params); err != nil {
 		return err
