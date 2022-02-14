@@ -114,6 +114,7 @@ import ToolbarLanguage from "../components/toolbar/ToolbarLanguage";
 import ToolbarNotifications from "../components/toolbar/ToolbarNotifications";
 
 export default {
+  middleware: "authenticated",
   components: {
     MainMenu,
     ToolbarUser,
