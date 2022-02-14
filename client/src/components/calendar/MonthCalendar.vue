@@ -205,6 +205,8 @@
 </template>
 
 <script>
+//TODO:複雑になりすぎているのでリファクタリング
+import moment from "moment";
 import { mapState } from "vuex";
 export default {
   data: () => ({
@@ -212,6 +214,7 @@ export default {
     focus: "",
     type: "month",
     time: null,
+    date: null,
     timePicker: {
       startTime: null,
       startTimeDialog: false,
@@ -252,11 +255,13 @@ export default {
   },
   mounted() {
     this.$refs.calendar.checkChange();
+    this.date = moment().toISOString();
   },
   methods: {
     viewDay({ date }) {
       this.focus = date;
       this.type = "day";
+      this.date = moment(date).toISOString();
     },
     getEventColor(event) {
       return event.color;
@@ -271,11 +276,15 @@ export default {
       this.$refs.calendar.next();
     },
     saveSchedule() {
-      this.$axios.post("v1/teacher-lecture-schedule", {
-        teacher_id: this.id,
-        start_time: timePicker.startTime,
-        end_time: timePicker.endTime,
-      });
+      //日時と時間を確認して、goが認識できる形で渡してやる
+      let date = moment(this.date).format("YYYY-MM-DD");
+      console.log(moment(date + " " + this.timePicker.startTime));
+      //this.$axios.post("v1/teacher-lecture-schedule", {
+      //  //TODO:登録前に時間に対してvalidation
+      //  teacher_id: this.id,
+      //  start_time: this.timePicker.startTime,
+      //  end_time: this.timePicker.endTime,
+      //});
     },
 
     updateRange({ start, end }) {
