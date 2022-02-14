@@ -1,8 +1,5 @@
 <template>
-  <div class="py-3 min-w-0 w-full">
-    <div class="display-1">Calendar</div>
-    <slot></slot>
-
+  <div class="min-w-0 w-full">
     <v-card class="mt-2 pa-2">
       <v-row class="fill-height">
         <v-col>
@@ -26,6 +23,7 @@
                     <v-icon right>mdi-menu-down</v-icon>
                   </v-btn>
                 </template>
+                <v-btn outlined class="mr-4" @click="setToday"> Add </v-btn>
                 <v-list>
                   <v-list-item @click="type = 'day'">
                     <v-list-item-title>Day</v-list-item-title>
