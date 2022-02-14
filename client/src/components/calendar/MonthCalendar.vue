@@ -319,9 +319,9 @@ export default {
         .get("v1/teacher-lecture-schedule", {
           params: {
             Query: [
-              //`StartTime >= ${moment(min).toISOString()}`,
-              //`EndTime =< ${moment(max).toISOString()}`,
-              //`TeacherID=${this.id}`,
+              `StartTime >= ${moment(min).toISOString()}`,
+              `EndTime =< ${moment(max).toISOString()}`,
+              `TeacherID == ${this.id}`,
             ],
           },
         })
