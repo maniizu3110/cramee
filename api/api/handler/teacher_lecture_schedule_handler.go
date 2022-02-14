@@ -231,3 +231,4 @@ func GetTeacherLectureScheduleList(c echo.Context) (err error) {
 		}, nil
 	})
 }
+
