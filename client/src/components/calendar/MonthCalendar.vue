@@ -244,25 +244,12 @@ export default {
     selectedElement: null,
     selectedOpen: false,
     events: [],
-    colors: [
-      "blue",
-      "indigo",
-      "deep-purple",
-      "cyan",
-      "green",
-      "orange",
-      "grey darken-1",
-    ],
-    names: [
-      "Meeting",
-      "Holiday",
-      "PTO",
-      "Travel",
-      "Event",
-      "Birthday",
-      "Conference",
-      "Party",
-    ],
+    kind: {
+      empty: { status: "空き", color: "grey darken-1" },
+      reserved: { status: "予約済", color: "blue" },
+      finished: { status: "完了", color: "green" },
+      absent: { status: "欠席", color: "orange" },
+    },
   }),
   computed: {
     ...mapState("auth", ["isStudent", "isLogin", "id"]),
@@ -325,30 +312,16 @@ export default {
           },
         })
         .then((res) => {
-          console.log(res);
+          res.data.Data.forEach((el) => {
+            //TODO:kindを状態によって
+            this.events.push({
+              name: this.kind.empty.status,
+              start: moment(el.start_time).format("YYYY-MM-DD hh:mm"),
+              end: moment(el.end_time).format("YYYY-MM-DD hh:mm"),
+              color: this.kind.empty.color,
+            });
+          });
         });
-      const eventCount = this.rnd(days, days + 20);
-
-      for (let i = 0; i < eventCount; i++) {
-        const allDay = this.rnd(0, 3) === 0;
-        const firstTimestamp = this.rnd(min.getTime(), max.getTime());
-        const first = new Date(firstTimestamp - (firstTimestamp % 900000));
-        const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000;
-        const second = new Date(first.getTime() + secondTimestamp);
-
-        events.push({
-          name: this.names[this.rnd(0, this.names.length - 1)],
-          start: first,
-          end: second,
-          color: this.colors[this.rnd(0, this.colors.length - 1)],
-          timed: !allDay,
-        });
-      }
-
-      this.events = events;
-    },
-    rnd(a, b) {
-      return Math.floor((b - a + 1) * Math.random()) + a;
     },
   },
 };
