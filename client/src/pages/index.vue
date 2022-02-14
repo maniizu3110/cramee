@@ -9,17 +9,10 @@
           もっと柔軟に、もっと効率よく。<br />自分らしい教え方・学び方を見つけよう
         </h2>
         <div class="mt-8">
-          <v-btn
-            x-large
-            class="my-1 mx-sm-1 w-full w-sm-auto"
-            color="primary"
-            to="/teacher/auth/signin"
+          <v-btn x-large class="my-1 mx-sm-1 w-full w-sm-auto" color="primary" to="/teacher/auth/signin"
             >講師ログイン</v-btn
           >
-          <v-btn
-            x-large
-            class="my-1 mx-sm-1 w-full w-sm-auto"
-            to="/student/auth/signin"
+          <v-btn x-large class="my-1 mx-sm-1 w-full w-sm-auto" to="/student/auth/signin"
             >生徒ログイン</v-btn
           >
         </div>
@@ -31,7 +24,12 @@
 </template>
 
 <script>
+import Partners from "@/components/landing/Partners.vue";
+
 export default {
   layout: "landing",
+  components: {
+    Partners,
+  },
 };
 </script>
