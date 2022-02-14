@@ -4,6 +4,7 @@ import (
 	"cramee/api/repository"
 	"cramee/api/services"
 	"cramee/api/services/types"
+	"cramee/lib/zoom"
 	"cramee/models"
 	"cramee/myerror"
 	"cramee/token"
@@ -20,17 +21,36 @@ func AssignSignTeacherHandler(g *echo.Group) {
 			conf := c.Get("config").(util.Config)
 			tk := c.Get("tk").(token.Maker)
 			db := c.Get("Tx").(*gorm.DB)
+			zc := zoom.NewClient(conf.ZoomApiKey, conf.ZoomApiSecret)
 			r := repository.NewTeacherRepository(db)
-			s := services.NewSignTeacherService(r, conf, tk)
+			zs := services.NewZoomService(conf, tk, zc)
+			s := services.NewSignTeacherService(r, conf, tk, zs)
 			c.Set("Service", s)
 			return handler(c)
 		}
 	})
 	g.POST("", CreateTeacherHandler)
+	g.POST("/with-zoom", CreateTeacherWithZoomHandler)
 	g.POST("/login", LoginTeacherHandler)
 }
 
 func CreateTeacherHandler(c echo.Context) error {
+	services := c.Get("Service").(services.SignTeacherService)
+	params := &models.Teacher{}
+	if err := c.Bind(params); err != nil {
+		return myerror.NewPublic(myerror.ErrBindData, err)
+	}
+	if err := c.Validate(params); err != nil {
+		return myerror.New(myerror.ErrRequestData, err, err)
+	}
+	teacher, err := services.CreateTeacher(params)
+	if err != nil {
+		return myerror.NewPublic(myerror.ErrCreate, err)
+	}
+	return c.JSON(http.StatusOK, teacher)
+}
+
+func CreateTeacherWithZoomHandler(c echo.Context) error {
 	services := c.Get("Service").(services.SignTeacherService)
 	params := &models.Teacher{}
 	if err := c.Bind(params); err != nil {
