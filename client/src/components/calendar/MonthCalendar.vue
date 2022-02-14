@@ -16,6 +16,10 @@
                 {{ $refs.calendar.title }}
               </v-toolbar-title>
               <v-spacer></v-spacer>
+              <schedule-dialog />
+              <v-btn outlined class="mr-4" @click="scheduleDialog = true">
+                Add
+              </v-btn>
               <v-menu bottom right>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn outlined v-bind="attrs" v-on="on">
@@ -23,7 +27,6 @@
                     <v-icon right>mdi-menu-down</v-icon>
                   </v-btn>
                 </template>
-                <v-btn outlined class="mr-4" @click="setToday"> Add </v-btn>
                 <v-list>
                   <v-list-item @click="type = 'day'">
                     <v-list-item-title>Day</v-list-item-title>
@@ -94,9 +97,14 @@
 </template>
 
 <script>
+import ScheduleDialog from "./ScheduleDialog";
 export default {
+  components: {
+    ScheduleDialog,
+  },
   data: () => ({
     focus: "",
+    scheduleDialog: false,
     type: "month",
     typeToLabel: {
       month: "Month",
@@ -165,6 +173,7 @@ export default {
       nativeEvent.stopPropagation();
     },
     updateRange({ start, end }) {
+      //TODO:APIを叩いて登録してあるスケジュールをカレンダーに表示
       const events = [];
 
       const min = new Date(`${start.date}T00:00:00`);
