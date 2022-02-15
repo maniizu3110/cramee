@@ -136,23 +136,25 @@ func TestGetUrlOfmaterials(t *testing.T) {
 	}
 
 	for _, testcase := range testcases {
-		sess, err := session.NewSession(&aws.Config{
-			Credentials: credentials.NewStaticCredentials(config.AwsS3AccessKey, config.AwsS3SecretAccessKey, ""),
-			Region:      aws.String(config.AwsS3Region)},
-		)
-		if err != nil {
-			t.Errorf("could not establish the session: %v", err)
-		}
-		svc := s3.New(sess)
-		key := "teacher/" + testcase.teacherId + "/" + testcase.studentId + "/" + time.Now().Local().Format("2006-01-02--00-00-00")
-		req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
-			Bucket: aws.String(config.AwsS3Bucket),
-			Key:    aws.String(key),
+		t.Run(testcase.name, func(t *testing.T) {
+			sess, err := session.NewSession(&aws.Config{
+				Credentials: credentials.NewStaticCredentials(config.AwsS3AccessKey, config.AwsS3SecretAccessKey, ""),
+				Region:      aws.String(config.AwsS3Region)},
+			)
+			if err != nil {
+				t.Errorf("could not establish the session: %v", err)
+			}
+			svc := s3.New(sess)
+			key := "teacher/" + testcase.teacherId + "/" + testcase.studentId + "/" + time.Now().Local().Format("2006-01-02--00-00-00")
+			req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
+				Bucket: aws.String(config.AwsS3Bucket),
+				Key:    aws.String(key),
+			})
+			urlStr, err := req.Presign(168 * time.Minute)
+			if err != nil {
+				t.Errorf("could not get material's url")
+			}
+			fmt.Println("\x1b[31mURL:\x1b[0m", urlStr)
 		})
-		urlStr, err := req.Presign(168 * time.Minute)
-		if err != nil {
-			t.Errorf("could not get material's url")
-		}
-		fmt.Println("\x1b[31mURL:\x1b[0m", urlStr)
 	}
 }
