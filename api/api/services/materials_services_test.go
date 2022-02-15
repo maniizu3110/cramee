@@ -89,6 +89,7 @@ func TestUploadMarterials(t *testing.T) {
 					t.Errorf("could not upload file")
 				}
 			}
+			defer file.Close()
 		})
 	}
 }

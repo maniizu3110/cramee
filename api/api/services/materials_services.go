@@ -5,6 +5,7 @@ import (
 	"cramee/token"
 	"cramee/util"
 	"fmt"
+	"mime/multipart"
 	"os"
 	"time"
 
@@ -18,8 +19,8 @@ import (
 )
 
 type MaterialsService interface {
-	UploadMaterials(file *os.File, status string, teacherId string, studentId string) error
-	GetUrlOfMarterials(status string, teacherId string, studentId string) (string, error)
+	UploadMaterials(file multipart.FileHeader, status string, teacherId string, studentId string, schoolHours string) error
+	GetUrlOfMarterials(status string, teacherId string, studentId string, schoolHours string) (string, error)
 }
 
 type materialsServiceImpl struct {
@@ -34,17 +35,21 @@ func NewMaterialsService(config util.Config, tokenMaker token.Maker) MaterialsSe
 	return res
 }
 
-func (m *materialsServiceImpl) UploadMaterials(file *os.File, status string, teacherId string, studentId string) error {
+func (m *materialsServiceImpl) UploadMaterials(file multipart.FileHeader, status string, teacherId string, studentId string, schoolHours string) error {
 	sess := session.Must(session.NewSession(&aws.Config{
 		Credentials: credentials.NewStaticCredentials(m.config.AwsS3AccessKey, m.config.AwsS3SecretAccessKey, ""),
 		Region:      aws.String(m.config.AwsS3Region),
 	}))
 	uploader := s3manager.NewUploader(sess)
-	key := status + "/" + teacherId + "/" + studentId + "/" + time.Now().Local().Format("2006-01-02--00-00-00")
+	key := status + "/" + teacherId + "/" + studentId + "/" + schoolHours
+	data, err := os.Open(file.Filename)
+	if err != nil {
+		return myerror.NewPublic(myerror.ErrUpload, err)
+	}
 	res, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(m.config.AwsS3Bucket),
 		Key:    aws.String(key),
-		Body:   file,
+		Body:   data,
 	})
 	if err != nil {
 		fmt.Println(res)
@@ -54,10 +59,11 @@ func (m *materialsServiceImpl) UploadMaterials(file *os.File, status string, tea
 			return myerror.NewPublic(myerror.ErrUpload, err)
 		}
 	}
+	defer data.Close()
 	return nil
 }
 
-func (m *materialsServiceImpl) GetUrlOfMarterials(status string, teacherId string, studentId string) (string, error) {
+func (m *materialsServiceImpl) GetUrlOfMarterials(status string, teacherId string, studentId string, schoolHours string) (string, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Credentials: credentials.NewStaticCredentials(m.config.AwsS3AccessKey, m.config.AwsS3SecretAccessKey, ""),
 		Region:      aws.String(m.config.AwsS3Region)},
@@ -66,7 +72,7 @@ func (m *materialsServiceImpl) GetUrlOfMarterials(status string, teacherId strin
 		return "", myerror.NewPublic(myerror.ErrBindData, err)
 	}
 	svc := s3.New(sess)
-	key := status + "/" + teacherId + "/" + studentId + "/" + time.Now().Local().Format("2006-01-02--00-00-00")
+	key := status + "/" + teacherId + "/" + studentId + "/" + schoolHours
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(m.config.AwsS3Bucket),
 		Key:    aws.String(key),
