@@ -226,7 +226,6 @@ import moment from "moment";
 export default {
   props: {
     id: {
-      type: Number,
       required: true,
     },
     editable: {
@@ -262,6 +261,7 @@ export default {
     events: [],
     kind: {
       empty: { status: "空き", color: "grey darken-1" },
+      pending: { status: "リクエスト済", color: "green" },
       reserved: { status: "予約済", color: "blue" },
       finished: { status: "完了", color: "green" },
       absent: { status: "欠席", color: "orange" },
@@ -272,6 +272,9 @@ export default {
     this.date = moment().toISOString();
   },
   methods: {
+    reload() {
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
+    },
     viewDay({ date }) {
       this.focus = date;
       this.type = "day";
@@ -291,10 +294,13 @@ export default {
     },
     clickSchedule(e) {
       //TODO:dialogで詳細情報をみれるようにする必要あり
-      this.$axios.put(`v1/teacher-lecture-schedule/${e.event.id}`,{
-        Status = 'pending'
-      })
-
+      this.$axios
+        .put(`v1/teacher-lecture-schedule/${e.event.id}`, {
+          Status: "pending",
+        })
+        .then((res) => {
+          this.reload();
+        });
     },
     saveSchedule() {
       let pickerDate = moment(this.picker).format("YYYY-MM-DD");
@@ -302,7 +308,7 @@ export default {
         pickerDate + " " + this.timePicker.startTime
       ).toISOString();
       const end_time = moment(
-        picker + " " + this.timePicker.endTime
+        pickerDate + " " + this.timePicker.endTime
       ).toISOString();
       this.$axios
         .post("v1/teacher-lecture-schedule", {
@@ -334,10 +340,10 @@ export default {
             //TODO:kindを状態によって変更する（emptyで固定されている）
             this.events.push({
               id: el.ID,
-              name: this.kind.empty.status,
+              name: this.kind[el.status].status,
               start: moment(el.start_time).format("YYYY-MM-DD hh:mm"),
               end: moment(el.end_time).format("YYYY-MM-DD hh:mm"),
-              color: this.kind.empty.color,
+              color: this.kind[el.status].color,
             });
           });
         });

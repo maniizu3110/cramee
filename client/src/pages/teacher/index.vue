@@ -1,5 +1,5 @@
 <template>
-  <div v-if="id" class="w-full">
+  <div class="w-full">
     <teacher-calender :id="id" :editable="true" />
   </div>
 </template>
