@@ -49,7 +49,7 @@ CREATE TABLE `student_lecture_schedules` (
   `student_id` bigint unsigned DEFAULT NULL,
   `start_time` datetime(3) DEFAULT NULL,
   `end_time` datetime(3) DEFAULT NULL,
-  `is_reserved` tinyint(1) DEFAULT NULL,
+  `status` enum('empty','pending','reserved','finish','absent') DEFAULT 'empty',
   PRIMARY KEY (`id`),
   KEY `fk_students_student_lecture_schedules` (`student_id`),
   CONSTRAINT `fk_students_student_lecture_schedules` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`)
@@ -64,7 +64,7 @@ CREATE TABLE `teacher_lecture_schedules` (
   `teacher_id` bigint unsigned DEFAULT NULL,
   `start_time` datetime(3) DEFAULT NULL,
   `end_time` datetime(3) DEFAULT NULL,
-  `is_reserved` tinyint(1) DEFAULT NULL,
+  `status` enum('empty','pending','reserved','finish','absent') DEFAULT 'empty',
   PRIMARY KEY (`id`),
   KEY `fk_teachers_teacher_lecture_schedules` (`teacher_id`),
   CONSTRAINT `fk_teachers_teacher_lecture_schedules` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`)
