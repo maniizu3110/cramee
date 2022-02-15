@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
@@ -53,4 +54,25 @@ func (m *materialsServiceImpl) UploadMaterials(file *os.File, status string, tea
 		}
 	}
 	return nil
+}
+
+func (m *materialsServiceImpl) GetUrlOfMarterials(status string, teacherId string, studentId string) (string, error) {
+	sess, err := session.NewSession(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(m.config.AwsS3AccessKey, m.config.AwsS3SecretAccessKey, ""),
+		Region:      aws.String(m.config.AwsS3Region)},
+	)
+	if err != nil {
+		return "", myerror.NewPublic(myerror.ErrBindData, err)
+	}
+	svc := s3.New(sess)
+	key := status + "/" + teacherId + "/" + studentId + "/" + time.Now().Local().Format("2006-01-02--00-00-00")
+	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String(m.config.AwsS3Bucket),
+		Key:    aws.String(key),
+	})
+	urlStr, err := req.Presign(168 * time.Minute)
+	if err != nil {
+		return "", myerror.NewPublic(myerror.ErrBindData, err)
+	}
+	return urlStr, nil
 }
