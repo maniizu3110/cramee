@@ -1,6 +1,6 @@
 <template>
-  <div v-if="users">
-    <users-table :users="users" />
+  <div class="w-full" v-if="users">
+    <users-table :users="users" :editable="false" />
   </div>
 </template>
 <script>
@@ -17,7 +17,7 @@ export default {
   },
   mounted() {
     this.$axios.get("v1/teacher").then((res) => {
-      this.users = res.data.Data
+      this.users = res.data.Data;
     });
   },
 };

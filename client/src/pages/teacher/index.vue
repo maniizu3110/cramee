@@ -1,6 +1,6 @@
 <template>
   <div v-if="id" class="w-full">
-    <teacher-calender :id="id" />
+    <teacher-calender :id="id" :editable="true" />
   </div>
 </template>
 <script>

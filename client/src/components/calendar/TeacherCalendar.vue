@@ -17,7 +17,12 @@
               </v-btn>
               <v-spacer></v-spacer>
               <v-row justify="center">
-                <v-dialog v-model="dialog" persistent max-width="600px">
+                <v-dialog
+                  v-if="editable"
+                  v-model="dialog"
+                  persistent
+                  max-width="600px"
+                >
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn color="primary" dark v-bind="attrs" v-on="on">
                       Add
@@ -167,6 +172,7 @@
             <v-calendar
               ref="calendar"
               v-model="focus"
+              @click:event="clickSchedule"
               color="primary"
               :events="events"
               :event-color="getEventColor"
@@ -223,6 +229,11 @@ export default {
       type: Number,
       required: true,
     },
+    editable: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   data: () => ({
     picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -278,6 +289,13 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
+    clickSchedule(e) {
+      //TODO:dialogで詳細情報をみれるようにする必要あり
+      this.$axios.put(`v1/teacher-lecture-schedule/${e.event.id}`,{
+        Status = 'pending'
+      })
+
+    },
     saveSchedule() {
       let pickerDate = moment(this.picker).format("YYYY-MM-DD");
       let start_time = moment(
@@ -315,6 +333,7 @@ export default {
           res.data.Data.forEach((el) => {
             //TODO:kindを状態によって変更する（emptyで固定されている）
             this.events.push({
+              id: el.ID,
               name: this.kind.empty.status,
               start: moment(el.start_time).format("YYYY-MM-DD hh:mm"),
               end: moment(el.end_time).format("YYYY-MM-DD hh:mm"),
