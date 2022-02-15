@@ -1,13 +1,16 @@
 <template>
-  <div class="d-flex flex-column flex-grow-1 full-width">
-    <v-card>
-      <v-data-table
-        v-model="selectedUsers"
-        :headers="headers"
-        :items="users"
-      >
-      </v-data-table>
-    </v-card>
+  <div class="w-full">
+    <div class="d-flex flex-column flex-grow-1">
+      <v-card>
+        <v-data-table
+          :headers="headers"
+          :items="users"
+          class="flex-grow-1"
+          @click:row="choose"
+        >
+        </v-data-table>
+      </v-card>
+    </div>
   </div>
 </template>
 
@@ -39,16 +42,13 @@ export default {
         { text: "名前", align: "left", value: "name" },
         { text: "Email", value: "email" },
         { text: "登録日", value: "created_at" },
-        //{ text: "最終ログイン", value: "lastSignIn" },
       ],
     };
   },
-  watch: {
-    selectedUsers(val) {},
-  },
   methods: {
-    searchUser() {},
-    open() {},
+    choose(e) {
+      this.$router.push(`/student/schedule/teachers/${e.ID}`);
+    },
   },
 };
 </script>
