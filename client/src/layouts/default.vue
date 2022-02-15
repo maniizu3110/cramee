@@ -26,7 +26,7 @@
         </template>
 
         <!-- Navigation menu -->
-        <!--<main-menu :menu="navigation" />-->
+        <main-menu :menu="navigation" />
       </v-navigation-drawer>
 
       <!-- Toolbar -->

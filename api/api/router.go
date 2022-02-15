@@ -43,7 +43,7 @@ func (server *Server) SetRouter() *echo.Echo {
 			middleware.AuthMiddleware(server.tokenMaker),
 		)
 		handler.AssignStudentHandler(g.Group("/student"))
-		handler.AssignTeacherHandler(g.Group("/student"))
+		handler.AssignTeacherHandler(g.Group("/teacher"))
 		handler.AssignZoomHandler(g.Group("/zoom"))
 		handler.AssignStripeHandler(g.Group("/stripe"))
 		handler.AssignTeacherLectureScheduleHandler(g.Group("/teacher-lecture-schedule"))
