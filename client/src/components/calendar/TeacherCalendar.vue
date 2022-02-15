@@ -217,8 +217,13 @@
 <script>
 //TODO:複雑になりすぎているのでリファクタリング
 import moment from "moment";
-import { mapState } from "vuex";
 export default {
+  props: {
+    id: {
+      type: Number,
+      required: true,
+    },
+  },
   data: () => ({
     picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -251,9 +256,6 @@ export default {
       absent: { status: "欠席", color: "orange" },
     },
   }),
-  computed: {
-    ...mapState("auth", ["isStudent", "isLogin", "id"]),
-  },
   mounted() {
     this.$refs.calendar.checkChange();
     this.date = moment().toISOString();
