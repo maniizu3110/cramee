@@ -3,6 +3,8 @@ package services
 import (
 	"cramee/models"
 	"cramee/token"
+
+	"github.com/sirupsen/logrus"
 )
 
 //go:generate $GOPATH/bin/mockgen -source=$GOFILE -destination=${GOPACKAGE}_mock/${GOFILE}.mock.go -package=${GOPACKAGE}_mock
@@ -37,7 +39,7 @@ type teacherLectureScheduleServiceImpl struct {
 
 func NewTeacherLectureScheduleService(repository TeacherLectureScheduleRepository, studentLectureScheduleRepo StudentLectureScheduleRepository, token *token.Payload) TeacherLectureScheduleService {
 	res := &teacherLectureScheduleServiceImpl{}
-	token = token
+	res.token = token
 	res.repo = repository
 	res.studentLectureScheduleRepo = studentLectureScheduleRepo
 	return res
@@ -72,6 +74,7 @@ func (c *teacherLectureScheduleServiceImpl) Restore(id uint) (*models.TeacherLec
 }
 
 func (c *teacherLectureScheduleServiceImpl) UpdateWithStudentLectureSchedule(id uint, data *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error) {
+	logrus.Info(c.token.ID)
 	var err error
 	//scheduleの予約をするのは生徒のみ
 	if c.token.IsTeacher {

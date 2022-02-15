@@ -101,6 +101,7 @@ export default {
     events: [],
     kind: {
       empty: { status: "空き", color: "grey darken-1" },
+      pending: { status: "リクエスト済", color: "green" },
       reserved: { status: "予約済", color: "blue" },
       finished: { status: "完了", color: "green" },
       absent: { status: "欠席", color: "orange" },
@@ -150,10 +151,10 @@ export default {
           res.data.Data.forEach((el) => {
             //TODO:kindを状態によって変更する（emptyで固定されている）
             this.events.push({
-              name: this.kind.empty.status,
+              name: this.kind[el.status].status,
               start: moment(el.start_time).format("YYYY-MM-DD hh:mm"),
               end: moment(el.end_time).format("YYYY-MM-DD hh:mm"),
-              color: this.kind.empty.color,
+              color: this.kind[el.status].color,
             });
           });
         });
