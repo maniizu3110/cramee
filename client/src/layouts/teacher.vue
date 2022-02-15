@@ -106,7 +106,6 @@
 
 <script>
 import { mapState } from "vuex";
-// navigation menu configurations
 import config from "../configs";
 import MainMenu from "../components/navigation/MainMenu";
 import ToolbarUser from "../components/toolbar/ToolbarUser";
@@ -132,11 +131,11 @@ export default {
     this.$axios
       .get("v1/teacher-lecture-schedule", {
         params: {
-          Query: [`"TeacherID=${this.id}`, "Status='pending'"],
+          Query: [`"TeacherID=${this.id}`],
         },
       })
       .then((res) => {
-        this.items = res.data.Data;
+        this.items = res.data.Data.filter((el) => el.status == "pending");
       });
   },
   computed: {
