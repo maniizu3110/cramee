@@ -17,6 +17,8 @@ var ErrEmptyAuthorization = errors.New("認証情報が空です")
 var ErrInvalidAuthorization = errors.New("無効な認証情報です")
 var ErrInvalidTypeAuthorization = errors.New("トークンタイプが無効です")
 var ErrVerifyToken = errors.New("トークンの検証に失敗しました")
+var ErrTimeOut = errors.New("タイムアウト")
+var ErrUpload = errors.New("アップロードに失敗しました")
 
 func NewErrorStatusCodeMaps() map[error]int {
 	errorStatusCodeMaps := make(map[error]int)
