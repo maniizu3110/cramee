@@ -295,7 +295,7 @@ export default {
     clickSchedule(e) {
       //TODO:dialogで詳細情報をみれるようにする必要あり
       this.$axios
-        .put(`v1/teacher-lecture-schedule/${e.event.id}`, {
+        .put(`v1/teacher-lecture-schedule/with-student-schedule/${e.event.id}`, {
           Status: "pending",
         })
         .then((res) => {

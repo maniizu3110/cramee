@@ -4,6 +4,7 @@ import (
 	"cramee/api/repository"
 	"cramee/api/services"
 	"cramee/models"
+	"cramee/token"
 	"errors"
 	"net/http"
 	"strconv"
@@ -16,8 +17,10 @@ func AssignTeacherLectureScheduleHandler(g *echo.Group) {
 	g = g.Group("", func(handler echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			db := c.Get("Tx").(*gorm.DB)
+			token := c.Get("token").(*token.Payload)
 			r := repository.NewTeacherLectureScheduleRepository(db)
-			s := services.NewTeacherLectureScheduleService(r)
+			sl := repository.NewStudentLectureScheduleRepository(db)
+			s := services.NewTeacherLectureScheduleService(r, sl, token)
 			c.Set("Service", s)
 			return handler(c)
 		}
@@ -28,6 +31,7 @@ func AssignTeacherLectureScheduleHandler(g *echo.Group) {
 	g.PUT("/:id/restore", RestoreTeacherLectureSchedule)
 	g.GET("/:id", GetTeacherLectureScheduleByID)
 	g.GET("", GetTeacherLectureScheduleList)
+	g.PUT("/with-student-schedule/:id", UpdateTeacherLectureScheduleWithStudentLectureSchedule)
 }
 
 type CreateTeacherLectureScheduleBaseCallbackFunc func(services.TeacherLectureScheduleService, *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error)
@@ -97,6 +101,11 @@ func UpdateTeacherLectureScheduleBase(c echo.Context, params interface{}, callba
 func UpdateTeacherLectureSchedule(c echo.Context) (err error) {
 	return UpdateTeacherLectureScheduleBase(c, nil, func(service services.TeacherLectureScheduleService, id uint, data *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error) {
 		return service.Update(uint(id), data)
+	})
+}
+func UpdateTeacherLectureScheduleWithStudentLectureSchedule(c echo.Context) (err error) {
+	return UpdateTeacherLectureScheduleBase(c, nil, func(service services.TeacherLectureScheduleService, id uint, data *models.TeacherLectureSchedule) (*models.TeacherLectureSchedule, error) {
+		return service.UpdateWithStudentLectureSchedule(uint(id), data)
 	})
 }
 
@@ -231,4 +240,3 @@ func GetTeacherLectureScheduleList(c echo.Context) (err error) {
 		}, nil
 	})
 }
-
