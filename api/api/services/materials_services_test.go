@@ -2,7 +2,6 @@ package services
 
 import (
 	"cramee/util"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -76,14 +75,12 @@ func TestUploadMarterials(t *testing.T) {
 			}))
 			uploader := s3manager.NewUploader(sess)
 			key := "teacher/" + testcase.teacherId + "/" + testcase.studentId + "/" + time.Now().Local().Format("2006-01-02--00-00-00")
-			res, err := uploader.Upload(&s3manager.UploadInput{
+			_, err = uploader.Upload(&s3manager.UploadInput{
 				Bucket: aws.String(config.AwsS3Bucket),
 				Key:    aws.String(key),
 				Body:   file,
 			})
 			if err != nil {
-				fmt.Println(res)
-				fmt.Println(err)
 				if err, ok := err.(awserr.Error); ok && err.Code() == request.CanceledErrorCode {
 					t.Errorf("time out")
 				} else {
