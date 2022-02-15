@@ -47,6 +47,7 @@ func (server *Server) SetRouter() *echo.Echo {
 		handler.AssignZoomHandler(g.Group("/zoom"))
 		handler.AssignStripeHandler(g.Group("/stripe"))
 		handler.AssignTeacherLectureScheduleHandler(g.Group("/teacher-lecture-schedule"))
+		handler.AssignMarterialsHandler(g.Group("/materials"))
 	}
 	return e
 }
