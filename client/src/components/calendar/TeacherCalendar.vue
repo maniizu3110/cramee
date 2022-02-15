@@ -295,9 +295,12 @@ export default {
     clickSchedule(e) {
       //TODO:dialogで詳細情報をみれるようにする必要あり
       this.$axios
-        .put(`v1/teacher-lecture-schedule/with-student-schedule/${e.event.id}`, {
-          Status: "pending",
-        })
+        .put(
+          `v1/teacher-lecture-schedule/with-student-schedule/${e.event.id}`,
+          {
+            Status: "pending",
+          }
+        )
         .then((res) => {
           this.reload();
         });
@@ -323,6 +326,7 @@ export default {
 
     updateRange({ start, end }) {
       //TODO:APIを叩いて登録してあるスケジュールをカレンダーに表示
+      this.events = [];
       const min = new Date(`${start.date}T00:00:00`);
       const max = new Date(`${end.date}T23:59:59`);
       this.$axios
