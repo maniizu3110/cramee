@@ -36,7 +36,7 @@
         </div>
       </v-list>
 
-      <div class="text-center py-2">
+      <div class="text-center py-2" @click="showItems">
         <v-btn small>See all</v-btn>
       </div>
     </v-card>
@@ -56,22 +56,27 @@ export default {
   props: {
     items: {
       type: Array,
-      default: [],
+      default: () => [],
     },
   },
   data() {
     return {
       //items: [
-        //{
-        //  title: "Brunch this weekend?",
-        //  color: "primary",
-        //  icon: "mdi-account-circle",
-        //  subtitle:
-        //    "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint, repudiandae?",
-        //  time: "3 min",
-        //},
+      //{
+      //  title: "Brunch this weekend?",
+      //  color: "primary",
+      //  icon: "mdi-account-circle",
+      //  subtitle:
+      //    "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sint, repudiandae?",
+      //  time: "3 min",
+      //},
       //],
     };
+  },
+  methods: {
+    showItems() {
+      console.log(this.items);
+    },
   },
 };
 </script>

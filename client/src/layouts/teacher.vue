@@ -85,7 +85,7 @@
 
               <div class="hidden-xs-only mx-1"></div>
               <div :class="[$vuetify.rtl ? 'ml-1' : 'mr-1']">
-                <toolbar-notifications />
+                <toolbar-notifications :items="items" />
               </div>
 
               <toolbar-user />
@@ -125,7 +125,19 @@ export default {
     return {
       drawer: null,
       showSearch: false,
+      items: [],
     };
+  },
+  mounted() {
+    this.$axios
+      .get("v1/teacher-lecture-schedule", {
+        params: {
+          Query: [`"TeacherID=${this.id}`, "Status='pending'"],
+        },
+      })
+      .then((res) => {
+        this.items = res.data.Data;
+      });
   },
   computed: {
     ...mapState("app", [
@@ -135,7 +147,7 @@ export default {
       "toolbarTheme",
       "isToolbarDetached",
     ]),
-    ...mapState("auth", ["isLogin"]),
+    ...mapState("auth", ["isLogin", "id"]),
     navigation() {
       if (!this.isLogin) return config.navigation.menues["teacher"];
     },
