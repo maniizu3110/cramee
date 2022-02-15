@@ -6,6 +6,7 @@
 <script>
 import TeacherCalendar from "../../../../components/calendar/TeacherCalendar.vue";
 export default {
+  layout: "student",
   components: { TeacherCalendar },
 };
 </script>

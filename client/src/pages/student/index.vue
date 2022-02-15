@@ -6,6 +6,7 @@
 <script>
 import StudentCalender from "../../components/calendar/StudentCalendar.vue";
 export default {
+  layout: "student",
   components: {
     StudentCalender,
   },
