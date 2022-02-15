@@ -7,6 +7,7 @@
 import { mapState } from "vuex";
 import TeacherCalender from "../../components/calendar/TeacherCalendar.vue";
 export default {
+  layout: 'teacher',
   components: {
     TeacherCalender,
   },

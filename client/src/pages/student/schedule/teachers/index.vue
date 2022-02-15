@@ -7,6 +7,7 @@
 import UsersTable from "../../../../components/user/UsersTable.vue";
 
 export default {
+  layout:'student',
   components: {
     UsersTable,
   },
