@@ -19,6 +19,7 @@ import (
 
 type MaterialsService interface {
 	UploadMaterials(file *os.File, status string, teacherId string, studentId string) error
+	GetUrlOfMarterials(status string, teacherId string, studentId string) (string, error)
 }
 
 type materialsServiceImpl struct {
