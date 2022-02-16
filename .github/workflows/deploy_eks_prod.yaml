@@ -50,10 +50,10 @@ jobs:
       - name: Deploy image to Amazon EKS
         working-directory: ./
         run: |
-          kubectl apply -f k8s/prod/aws-auth.yaml
-          kubectl apply -f k8s/prod/issuer.yaml
-          kubectl apply -f k8s/prod/ingress.yaml
-          kubectl apply -f k8s/prod/client-deployment.yaml
-          kubectl apply -f k8s/prod/api-deployment.yaml
-          kubectl apply -f k8s/prod/client-service.yaml
-          kubectl apply -f k8s/prod/api-service.yaml
+          kubectl apply -f k8s/aws-auth.yaml
+          kubectl apply -f k8s/issuer.yaml
+          kubectl apply -f k8s/ingress.yaml
+          kubectl apply -f k8s/client-deployment.yaml
+          kubectl apply -f k8s/api-deployment.yaml
+          kubectl apply -f k8s/client-service.yaml
+          kubectl apply -f k8s/api-service.yaml
