@@ -26,7 +26,27 @@ spec:
                 name: client-service
                 port:
                   number: 3000
+    - host: demo.cramee.link
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/?(.*)"
+            backend:
+              service:
+                name: client-service
+                port:
+                  number: 3000
     - host: cramee.link
+      http:
+        paths:
+          - path: /api/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: api-service
+                port:
+                  number: 8080
+    - host: demo.cramee.link
       http:
         paths:
           - path: /api/?(.*)
@@ -39,4 +59,5 @@ spec:
   tls:
     - hosts:
         - "cramee.link"
+        - "demo.cramee.link"
       secretName: cramee-cert
