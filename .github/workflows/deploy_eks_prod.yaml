@@ -2,7 +2,7 @@ name: Deploy cramee-api to eks
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   deploy:
