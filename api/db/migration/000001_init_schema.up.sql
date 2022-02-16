@@ -75,8 +75,16 @@ CREATE TABLE `lectures` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `deleted_at` datetime(3) DEFAULT NULL,
-  `teacher_lecture_schedule_id` bigint DEFAULT NULL,
-  `student_lecture_schedule_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `teacher_id` bigint unsigned DEFAULT '0',
+  `student_id` bigint unsigned DEFAULT '0',
+  `start_time` datetime(3) DEFAULT NULL,
+  `end_time` datetime(3) DEFAULT NULL,
+  `status` enum('empty','pending','reserved','finish','absent') DEFAULT 'empty',
+  `zoom_link` longtext,
+  PRIMARY KEY (`id`),
+  KEY `fk_lectures_teacher` (`teacher_id`),
+  KEY `fk_lectures_student` (`student_id`),
+  CONSTRAINT `fk_lectures_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`),
+  CONSTRAINT `fk_lectures_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

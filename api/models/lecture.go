@@ -1,9 +1,16 @@
 package models
 
+import "time"
+
 //go:generate go run ../codegen/main.go -file ${GOFILE} -dest ..
 type Lecture struct {
 	Model
-	TeacherLectureScheduleID int64 `json:"teacher_lecture_schedule_id"`
-	StudentLectureScheduleID int64 `json:"student_lecture_schedule_id"`
+	TeacherID uint      `json:"teacher_id" gorm:"default:0"`
+	StudentID uint      `json:"student_id" gorm:"default:0"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	Status    string    `json:"status" gorm:"type: enum('empty','pending','reserved','finish','absent'); default:'empty'"`
+	Teacher   Teacher   `json:"teacher"`
+	Student   Student   `json:"student"`
+	ZoomLink  string    `json:"zoom_link"`
 }
-
