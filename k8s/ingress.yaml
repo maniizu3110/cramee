@@ -8,7 +8,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: crame-ingress
+  name: cramee-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: 'true'
     nginx.ingress.kubernetes.io/rewrite-target: /$1
@@ -16,7 +16,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: crame.link
+    - host: cramee.link
       http:
         paths:
           - path: /api/?(.*)
@@ -26,7 +26,7 @@ spec:
                 name: api-service
                 port:
                   number: 8080
-    - host: crame.link
+    - host: cramee.link
       http:
         paths:
           - path: /?(.*)
@@ -38,6 +38,6 @@ spec:
                   number: 3000
   tls:
   - hosts:
-    - crame.link
-    secretName: crame-cert
+    - cramee.link
+    secretName: cramee-cert
 
