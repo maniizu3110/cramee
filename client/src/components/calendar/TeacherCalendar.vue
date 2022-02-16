@@ -172,7 +172,7 @@
             <v-calendar
               ref="calendar"
               v-model="focus"
-              @click:event="clickSchedule"
+              @click:event="showEvent"
               color="primary"
               :events="events"
               :event-color="getEventColor"
@@ -189,26 +189,28 @@
             >
               <v-card min-width="350px" flat>
                 <v-toolbar :color="selectedEvent.color" dark>
-                  <v-btn icon>
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
                   <v-toolbar-title
                     v-html="selectedEvent.name"
                   ></v-toolbar-title>
                   <v-spacer></v-spacer>
-                  <v-btn icon>
+                  <!--<v-btn icon>
                     <v-icon>mdi-heart</v-icon>
                   </v-btn>
                   <v-btn icon>
                     <v-icon>mdi-dots-vertical</v-icon>
-                  </v-btn>
+                  </v-btn>-->
                 </v-toolbar>
                 <v-card-text>
-                  <span v-html="selectedEvent.details"></span>
+                  <span
+                    >{{ selectedEvent.start }}〜{{ selectedEvent.end }}</span
+                  >
                 </v-card-text>
                 <v-card-actions>
                   <v-btn text color="secondary" @click="selectedOpen = false">
-                    Cancel
+                    閉じる
+                  </v-btn>
+                  <v-btn text color="secondary" @click="deleteSchedule">
+                    削除
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -292,18 +294,23 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
-    clickSchedule(e) {
-      //TODO:dialogで詳細情報をみれるようにする必要あり
-      this.$axios
-        .put(
-          `v1/teacher-lecture-schedule/with-student-schedule/${e.event.id}`,
-          {
-            Status: "pending",
-          }
-        )
-        .then((res) => {
-          this.reload();
-        });
+    showEvent({ nativeEvent, event }) {
+      const open = () => {
+        this.selectedEvent = event;
+        this.selectedElement = nativeEvent.target;
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => (this.selectedOpen = true))
+        );
+      };
+
+      if (this.selectedOpen) {
+        this.selectedOpen = false;
+        requestAnimationFrame(() => requestAnimationFrame(() => open()));
+      } else {
+        open();
+      }
+
+      nativeEvent.stopPropagation();
     },
     saveSchedule() {
       let pickerDate = moment(this.picker).format("YYYY-MM-DD");
@@ -314,7 +321,7 @@ export default {
         pickerDate + " " + this.timePicker.endTime
       ).toISOString();
       this.$axios
-        .post("v1/teacher-lecture-schedule", {
+        .post("v1/lecture", {
           teacher_id: this.id,
           start_time: start_time,
           end_time: end_time,
@@ -323,32 +330,36 @@ export default {
           this.dialog = false;
         });
     },
-
+    deleteSchedule(e) {
+      this.$axios.delete(`v1/lecture/${this.selectedEvent.id}`).then((res) => {
+        this.reload();
+      });
+    },
     updateRange({ start, end }) {
       //TODO:APIを叩いて登録してあるスケジュールをカレンダーに表示
       this.events = [];
       const min = new Date(`${start.date}T00:00:00`);
       const max = new Date(`${end.date}T23:59:59`);
       this.$axios
-        .get("v1/teacher-lecture-schedule", {
+        .get("v1/lecture", {
           params: {
             Query: [
               `StartTime >= ${moment(min).toISOString()}`,
               `EndTime =< ${moment(max).toISOString()}`,
               `TeacherID == ${this.id}`,
             ],
+            IncludeDeleted: false,
           },
         })
         .then((res) => {
+          console.log(res);
           res.data.Data.forEach((el) => {
-            //TODO:kindを状態によって変更する（emptyで固定されている）
-            this.events.push({
-              id: el.ID,
-              name: this.kind[el.status].status,
-              start: moment(el.start_time).format("YYYY-MM-DD hh:mm"),
-              end: moment(el.end_time).format("YYYY-MM-DD hh:mm"),
-              color: this.kind[el.status].color,
-            });
+            el.id = el.ID;
+            el.name = this.kind[el.status].status;
+            el.start = moment(el.start_time).format("YYYY-MM-DD hh:mm");
+            el.end = moment(el.end_time).format("YYYY-MM-DD hh:mm");
+            el.color = this.kind[el.status].color;
+            this.events.push(el);
           });
         });
     },

@@ -130,7 +130,6 @@ export default {
       }
     },
     signUp(phone, email, password) {
-      console.log(phone, email, password);
       this.$axios
         .post("/v1/sign-teacher/with-zoom", {
           phone_number: phone,

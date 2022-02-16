@@ -129,7 +129,7 @@ export default {
   },
   mounted() {
     this.$axios
-      .get("v1/teacher-lecture-schedule", {
+      .get("v1/lecture", {
         params: {
           Query: [`"TeacherID=${this.id}`],
         },

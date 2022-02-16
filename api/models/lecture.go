@@ -10,7 +10,5 @@ type Lecture struct {
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 	Status    string    `json:"status" gorm:"type: enum('empty','pending','reserved','finish','absent'); default:'empty'"`
-	Teacher   Teacher   `json:"teacher"`
-	Student   Student   `json:"student"`
 	ZoomLink  string    `json:"zoom_link"`
 }
