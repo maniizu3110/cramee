@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: crame-api
-          image: 800317362310.dkr.ecr.ap-northeast-1.amazonaws.com/crame-api:latest
+          image: 800317362310.dkr.ecr.ap-northeast-1.amazonaws.com/cramee-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
