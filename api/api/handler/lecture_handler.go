@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -205,6 +206,7 @@ func GetLectureListBase(c echo.Context, params interface{}, callback GetLectureL
 		if err = c.Bind(params); err != nil {
 			return errors.New(err.Error())
 		}
+		logrus.Info(params)
 	}
 	response, err := callback(service)
 	if err != nil {
@@ -217,7 +219,6 @@ func GetLectureList(c echo.Context) (err error) {
 	var param struct {
 		services.GetAllConfig
 	}
-
 	return GetLectureListBase(c, &param, func(service services.LectureService) (*GetLectureListResponse, error) {
 		m, count, err := service.GetAll(param.GetAllConfig)
 		if err != nil {

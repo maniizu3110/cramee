@@ -20,9 +20,9 @@ type Student struct {
 }
 
 type LimitedStudentInfo struct {
-	ID          uint
-	PhoneNumber string
-	Email       string
+	ID          uint   `json:"id"`
+	PhoneNumber string `json:"phone_number"`
+	Email       string `json:"email"`
 }
 
 //必要最低限の情報のみ抽出して返す

@@ -26,7 +26,7 @@
         </template>
 
         <!-- Navigation menu -->
-        <main-menu :menu="navigation" />
+        <!--<main-menu :menu="navigation" />-->
       </v-navigation-drawer>
 
       <!-- Toolbar -->
@@ -114,7 +114,7 @@ import ToolbarLanguage from "../components/toolbar/ToolbarLanguage";
 import ToolbarNotifications from "../components/toolbar/ToolbarNotifications";
 
 export default {
-  middleware: "authenticated",
+  //middleware: "authenticated",
   components: {
     MainMenu,
     ToolbarUser,
@@ -135,12 +135,9 @@ export default {
       "toolbarTheme",
       "isToolbarDetached",
     ]),
-    ...mapState("auth", ["isStudent", "isLogin"]),
+    ...mapState("auth", ["isLogin"]),
     navigation() {
-      if (!this.isLogin) return config.navigation.menues["default"];
-      return this.isStudent
-        ? config.navigation.menues["student"]
-        : config.navigation.menues["teacher"];
+      if (!this.isLogin) return config.navigation.menues["student"];
     },
   },
   methods: {

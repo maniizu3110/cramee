@@ -1,6 +1,9 @@
 package services
 
-import "cramee/models"
+import (
+	"cramee/models"
+
+)
 
 //go:generate $GOPATH/bin/mockgen -source=$GOFILE -destination=${GOPACKAGE}_mock/${GOFILE}.mock.go -package=${GOPACKAGE}_mock
 
