@@ -1,7 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: EKS Cluster
-
-#TODO:テスト用サーバーをパブリックに、本番用サーバーをprivateサブネットにおく
 Mappings:
   ServicePrincipalPartitionMap:
     aws:
@@ -21,26 +19,35 @@ Parameters:
   #settings of network for eks
   VPCCidrBlock:
     Type: String
-    Default: "10.0.0.0/16"
+    Default: "10.10.0.0/16"
   PublicCidrBlock1:
     Type: String
-    Default: "10.0.1.0/24"
+    Default: "10.10.1.0/24"
   PublicCidrBlock2:
     Type: String
-    Default: "10.0.2.0/24"
+    Default: "10.10.2.0/24"
   PublicCidrBlock3:
     Type: String
-    Default: "10.0.3.0/24"
+    Default: "10.10.3.0/24"
+  PrivateCidrBlock1:
+    Type: String
+    Default: "10.10.4.0/24"
+  PrivateCidrBlock2:
+    Type: String
+    Default: "10.10.5.0/24"
+  PrivateCidrBlock3:
+    Type: String
+    Default: "10.10.6.0/24"
   EKSClusterVersion:
     Default: "1.21"
     Type: String
   NodeGroupInstanceTypes:
     Type: String
-    Default: "t3.micro"
+    Default: "t3.small"
 
   #setting for rds
   RDSDBName:
-    Default: ambassador
+    Default: cramee
     Description: initial database name
     Type: String
     MinLength: "1"
@@ -76,7 +83,6 @@ Parameters:
     ConstraintDescription: must contain only alphanumeric characters.
 
 Resources:
-  #resource for network
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -162,6 +168,131 @@ Resources:
     Properties:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet3
+
+  EIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NATGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIP1.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-nat-gw1
+  EIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NATGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIP2.AllocationId
+      SubnetId: !Ref PublicSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-nat-gw2
+  EIP3:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NATGateway3:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIP3.AllocationId
+      SubnetId: !Ref PublicSubnet3
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-nat-gw3
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, Fn::GetAZs: !Ref AWS::Region]
+      CidrBlock: !Ref PrivateCidrBlock1
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-subnet1
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-route-table1
+  PrivateRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet1
+  PrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      NatGatewayId: !Ref NATGateway1
+      DestinationCidrBlock: 0.0.0.0/0
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, Fn::GetAZs: !Ref AWS::Region]
+      CidrBlock: !Ref PrivateCidrBlock2
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-subnet2
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-route-table2
+  PrivateRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref PrivateSubnet2
+  PrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      NatGatewayId: !Ref NATGateway2
+      DestinationCidrBlock: 0.0.0.0/0
+
+  PrivateSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [2, Fn::GetAZs: !Ref AWS::Region]
+      CidrBlock: !Ref PrivateCidrBlock3
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-subnet3
+  PrivateRouteTable3:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-route-table3
+  PrivateRouteTableAssociation3:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable3
+      SubnetId: !Ref PrivateSubnet3
+  PrivateRoute3:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable3
+      NatGatewayId: !Ref NATGateway3
+      DestinationCidrBlock: 0.0.0.0/0
+
   ControlPlane:
     Type: AWS::EKS::Cluster
     Properties:
@@ -175,6 +306,9 @@ Resources:
           - !Ref PublicSubnet1
           - !Ref PublicSubnet2
           - !Ref PublicSubnet3
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+          - !Ref PrivateSubnet3
       RoleArn: !GetAtt EKSClusterRole.Arn
       Version: !Ref EKSClusterVersion
   EKSClusterRole:
@@ -227,9 +361,9 @@ Resources:
         MaxSize: 2
         MinSize: 1
       Subnets:
-        - !Ref PublicSubnet1
-        - !Ref PublicSubnet2
-        - !Ref PublicSubnet3
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+        - !Ref PrivateSubnet3
       Tags:
         alpha.eksctl.io/nodegroup-name: !Sub ng-${AWS::StackName}
         alpha.eksctl.io/nodegroup-type: managed
@@ -258,37 +392,44 @@ Resources:
       Path: /
 
   # create repositories for docker image
-  NestRepository:
+  CrameeServerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: nest-ambassador
-  VueAdminRepository:
+      RepositoryName: crame-api
+  WebClientRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: vue-admin-ambassador
-  VueAmbassadorRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: vue-ambassador
-  NuxtAmbassadorRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: nuxt-checkout
+      RepositoryName: web-client
   # create rds
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow access to mysql
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
 
   RDSDBSubnetGroup:
     Type: "AWS::RDS::DBSubnetGroup"
     Properties:
-      DBSubnetGroupDescription: subnet group for rds that is used for nest eks
+      DBSubnetGroupDescription: subnet group for rds that is used for cramee eks
       SubnetIds:
-        - !Ref PublicSubnet1
-        - !Ref PublicSubnet2
-        - !Ref PublicSubnet3
-  NestRDS:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+        - !Ref PrivateSubnet3
+  CrameeRDS:
     Type: "AWS::RDS::DBInstance"
     Properties:
       DBSubnetGroupName: !Ref RDSDBSubnetGroup
-      PubliclyAccessible: true
+      PubliclyAccessible: false
       DBInstanceIdentifier: !Ref RDSDBName
       DBName: !Ref RDSDBName
       DBInstanceClass: !Ref RDSDBInstanceClass
@@ -297,28 +438,5 @@ Resources:
       EngineVersion: 8.0.23
       MasterUsername: !Ref RDSDBUsername
       MasterUserPassword: !Ref RDSDBPassword
-
-  #secret for !Ref NestRepository
-  SecretForNestImage:
-    Type: "AWS::SecretsManager::Secret"
-    Properties:
-      Name: SecretForNestImage
-      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
-      SecretString: '{"username":"MasterUsername","password":"secret-password"}'
-      Tags:
-        - Key: CHECKOUT_URL
-          Value: http://crame.link/checkout
-        - Key: STRIPE_KEY
-          Value: sk_test_51K6qJkFwSE9OqyMq1jMKaH4NDTIWWPaacYRI26tDLuF0GKcDMNPtTYwrOl0mXQpMWMURIVymg041odWK79UxozoT00ztJ6cTgx
-        - Key: MYSQL_HOST
-          Value: !GetAtt NestRDS.Endpoint.Address
-        - Key: MYSQL_PORT
-          Value: !GetAtt NestRDS.Endpoint.Port
-        - Key: MYSQL_USERNAME
-          Value: !Ref RDSDBUsername
-        - Key: MYSQL_PASSWORD
-          Value: !Ref RDSDBPassword
-        - Key: MYSQL_DATABASE
-          Value: !Ref RDSDBName
-
-    #TODO:Create S3 for image
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
