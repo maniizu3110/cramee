@@ -5,8 +5,7 @@ COPY ./package.json ./
 COPY ./nuxt.config.js ./
 ENV HOST=0.0.0.0
 
-#TODO:CI通すためにforceしてるけど良くない
-RUN npm --force install
+RUN npm install
 COPY . .
 RUN npm run build
 CMD ["npm","run","start"]
