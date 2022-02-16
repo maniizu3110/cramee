@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: crame-client
-          image: 800317362310.dkr.ecr.ap-northeast-1.amazonaws.com/cramee-web-client:latest
+          image: 800317362310.dkr.ecr.ap-northeast-1.amazonaws.com/web-client:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
