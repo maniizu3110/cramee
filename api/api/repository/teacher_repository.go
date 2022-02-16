@@ -92,6 +92,8 @@ func GetAllTeacherBase(config services.GetAllConfig, db *gorm.DB, queryBuildFunc
 			return false, err
 		}
 		var size int
+		model, size = MergeTeacherSlice(model, sub)
+
 		offset += size
 		limit -= size
 		return size < subLimit || limit < 0, nil
@@ -226,4 +228,12 @@ func (m *teacherRepositoryImpl) GetByEmail(email string) (*models.Teacher, error
 		return nil, err
 	}
 	return data, nil
+}
+
+
+func MergeTeacherSlice(s []*models.Teacher, t []models.Teacher) ([]*models.Teacher, int) {
+	for i := range t {
+		s = append(s, &t[i])
+	}
+	return s, len(t)
 }
