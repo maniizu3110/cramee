@@ -395,7 +395,7 @@ Resources:
   CrameeServerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: crame-api
+      RepositoryName: cramee-api
   WebClientRepository:
     Type: AWS::ECR::Repository
     Properties:
