@@ -429,7 +429,7 @@ Resources:
     Type: "AWS::RDS::DBInstance"
     Properties:
       DBSubnetGroupName: !Ref RDSDBSubnetGroup
-      PubliclyAccessible: false
+      PubliclyAccessible: true
       DBInstanceIdentifier: !Ref RDSDBName
       DBName: !Ref RDSDBName
       DBInstanceClass: !Ref RDSDBInstanceClass
