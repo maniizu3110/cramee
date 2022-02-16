@@ -112,7 +112,6 @@ export default {
       if (this.$refs.form.validate()) {
         this.isLoading = true;
         this.isSignUpDisabled = true;
-        console.log(this.password);
         await this.loginTeacher({
           email: this.email,
           password: this.password,

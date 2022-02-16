@@ -352,7 +352,7 @@ export default {
           },
         })
         .then((res) => {
-          console.log(res);
+          (res);
           res.data.Data.forEach((el) => {
             el.id = el.ID;
             el.name = this.kind[el.status].status;
