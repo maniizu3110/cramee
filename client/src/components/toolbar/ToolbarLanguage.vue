@@ -63,8 +63,6 @@ export default {
   methods: {
     setLocale(locale) {
       this.$vuetify.lang.current = locale;
-      console.log(this.$vuetify.lang.current);
-
       // example on how certain languages can be RTL
       if (locale === "ar") {
         this.$vuetify.rtl = true;
