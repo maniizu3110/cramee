@@ -16,7 +16,6 @@ FROM node:16-alpine3.12
 WORKDIR "/app"
 COPY ./*.json ./
 COPY ./nuxt.config.js ./
-COPY ./.env ./
 RUN npm install --legacy-peer-deps
 COPY . .
 ENV HOST=0.0.0.0
