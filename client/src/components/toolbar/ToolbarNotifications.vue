@@ -58,9 +58,8 @@ export default {
       this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
     updateSchedule(id, accept) {
-      console.log(id, accept);
       this.$axios
-        .put(`v1/teacher-lecture-schedule/${id}`, {
+        .put(`v1/lecture/${id}`, {
           Status: accept ? "reserved" : "empty",
         })
         .then(() => {
