@@ -7,5 +7,5 @@ ENV HOST=0.0.0.0
 
 RUN npm install
 COPY . .
-RUN npm build
-CMD ["npm","start"]
+RUN npm run build
+CMD ["npm","run","start"]
