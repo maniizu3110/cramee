@@ -3,7 +3,7 @@
 package main
 
 import (
-	"cramee/chat/chat"
+	"chat/chat"
 	"fmt"
 	"io"
 	"sync"

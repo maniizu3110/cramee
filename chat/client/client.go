@@ -4,7 +4,7 @@ package main
 
 import (
 	"bufio"
-	"cramee/chat/chat"
+	"chat/chat"
 	"fmt"
 	"io"
 	"log"
